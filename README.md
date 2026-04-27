@@ -12,6 +12,7 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
   - `gng_forecast_v10_scenarios.html`
   - `gng_forecast_v11_scenarios.html`
   - `gng_forecast_v12_scenarios.html`
+  - `gng_forecast_v13_scenarios.html`
 - `data/raw/`：原始参考数据
   - `GNG_Data_Request_678_rawdata1.txt`：前两个版本按月/区域基础数据，含 avg_dau / avg_ccu / avg_pcu / avg_wait_time_secs
   - `gng_OM_device_retention_2026-04-08.txt`：OM device retention 明细
@@ -20,7 +21,7 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
 
 ## 最新版本
 
-最新版报告：`reports/gng_forecast_v12_scenarios.html`
+最新版报告：`reports/gng_forecast_v13_scenarios.html`
 
 ## 核心模型
 
@@ -41,3 +42,9 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
 - 字段 `carryover均DAU` 改为 `前两周留存DAU`。
 - 平衡版：整月保持 ID/VN/US/BR/SAC=27,000，MY=5,000。
 - 冲刺版：D1–14 同平衡版；D15–30 冲刺到 ID+VN+MY=100,000、US+BR+SAC=100,000。
+
+
+## v13 修正
+
+- 回流cap后不再只做展示层重分配。
+- 新逻辑：先固定历史可回流人数，再反推需要的OM/Organic，保证来源拆分和DAU目标一致。
