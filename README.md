@@ -13,6 +13,7 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
   - `gng_forecast_v11_scenarios.html`
   - `gng_forecast_v12_scenarios.html`
   - `gng_forecast_v13_scenarios.html`
+  - `gng_forecast_v14_scenarios.html`
 - `data/raw/`：原始参考数据
   - `GNG_Data_Request_678_rawdata1.txt`：前两个版本按月/区域基础数据，含 avg_dau / avg_ccu / avg_pcu / avg_wait_time_secs
   - `gng_OM_device_retention_2026-04-08.txt`：OM device retention 明细
@@ -21,7 +22,7 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
 
 ## 最新版本
 
-最新版报告：`reports/gng_forecast_v13_scenarios.html`
+最新版报告：`reports/gng_forecast_v14_scenarios.html`
 
 ## 核心模型
 
@@ -48,3 +49,8 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
 
 - 回流cap后不再只做展示层重分配。
 - 新逻辑：先固定历史可回流人数，再反推需要的OM/Organic，保证来源拆分和DAU目标一致。
+
+
+## v14 修正
+
+- 修正汇总展开行占比显示：回流 / OM / Organic 全部按实际占总Install比例计算，三项加总约等于100%。
