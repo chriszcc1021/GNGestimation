@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GNG 新版本首月DAU预估 v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e0e0e0; padding: 20px; }
+  h1 { text-align: center; color: #fff; font-size: 22px; margin-bottom: 6px; }
+  .subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .card { background: #1e2130; border-radius: 10px; padding: 14px; border-left: 4px solid; }
+  .card.ID { border-color: #4e9af1; }
+  .card.SG { border-color: #f1c44e; }
+  .card.US { border-color: #4ef1a0; }
+  .card.BR { border-color: #f14e4e; }
+  .card.SAC { border-color: #c44ef1; }
+  .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .card.ID h3 { color: #4e9af1; }
+  .card.SG h3 { color: #f1c44e; }
+  .card.US h3 { color: #4ef1a0; }
+  .card.BR h3 { color: #f14e4e; }
+  .card.SAC h3 { color: #c44ef1; }
+  .card .metric { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
+  .card .label { color: #888; }
+  .card .value { font-weight: 600; color: #fff; }
+  .divider { border-top: 1px solid #2a2d3e; margin: 8px 0; }
+  .sub-metric { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; }
+  .sub-label { color: #666; }
+
+  .chart-section { background: #1e2130; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+  .chart-section h2 { font-size: 15px; color: #ccc; margin-bottom: 14px; }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .chart-wrapper { position: relative; height: 220px; }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #aaa; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab-btn { padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #2a2d3e; color: #888; }
+  .tab-btn.active.ID { background: #4e9af1; color: #fff; }
+  .tab-btn.active.SG { background: #f1c44e; color: #000; }
+  .tab-btn.active.US { background: #4ef1a0; color: #000; }
+  .tab-btn.active.BR { background: #f14e4e; color: #fff; }
+  .tab-btn.active.SAC { background: #c44ef1; color: #fff; }
+
+  .table-section { background: #1e2130; border-radius: 10px; padding: 16px; }
+  .table-section h2 { font-size: 15px; color: #ccc; margin-bottom: 12px; }
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px; }
+  th { background: #2a2d3e; color: #aaa; padding: 8px 8px; text-align: right; font-weight: 600; white-space: nowrap; }
+  th:first-child { text-align: center; }
+  th.group-om { background: #1a2535; color: #4e9af1; }
+  th.group-org { background: #1a3520; color: #4ef1a0; }
+  th.group-rev { background: #2a1a35; color: #c44ef1; }
+  td { padding: 6px 8px; text-align: right; border-bottom: 1px solid #1a1d2e; }
+  td:first-child { text-align: center; font-weight: 700; color: #888; }
+  tr:hover td { background: #252838; }
+  .col-dau { color: #fff; font-weight: 700; }
+  .col-pcu { color: #c44ef1; }
+  .col-install { color: #4e9af1; }
+  .col-om { color: #64b5f6; }
+  .col-org { color: #4ef1a0; }
+  .col-rev { color: #f1a44e; }
+
+  .assumptions { background: #1a1d2e; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 12px; color: #888; }
+  .assumptions h3 { color: #aaa; margin-bottom: 8px; font-size: 13px; }
+  .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 4px; }
+  .tag-om { background: #1a2535; color: #4e9af1; }
+  .tag-org { background: #1a3520; color: #4ef1a0; }
+  .tag-rev { background: #2a1a35; color: #f1a44e; }
+</style>
+</head>
+<body>
+
+<h1>🎮 GNG 新版本首月DAU预估 v2</h1>
+<p class="subtitle">含 OM买量 / Organic / 回流用户 三类拆分 · 基于历史数据建模</p>
+
+<div class="assumptions">
+  <h3>📋 计算说明</h3>
+  <p style="margin-bottom:6px">留存：D2=43%，D3=27.5%，D7=12.4%，D14=6.2%，D30=4.3%（历史均值）&nbsp;|&nbsp;推广分布：前7天占60%新增</p>
+  <p>
+    <span class="tag tag-om">OM买量比</span>：ID 65%，SG 50%，US 60%，BR 27%，SAC 46%（版本2历史数据）&nbsp;&nbsp;
+    <span class="tag tag-rev">回流比</span>：ID 30%，SG 20%，US 35%，BR 25%，SAC 10%（停服3个月，比版本2开服时更高）
+  </p>
+</div>
+
+<div class="summary-grid" id="summaryCards"></div>
+
+<div class="chart-section">
+  <h2>📈 各区30天DAU走势</h2>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4e9af1"></div>ID</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f1c44e"></div>SG</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4ef1a0"></div>US</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f14e4e"></div>BR</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#c44ef1"></div>SAC</div>
+  </div>
+  <div class="chart-wrapper"><canvas id="dauChart"></canvas></div>
+</div>
+
+<div class="chart-section">
+  <h2>👥 用户构成（全区合计）</h2>
+  <div class="chart-grid">
+    <div>
+      <p style="color:#aaa;font-size:13px;margin-bottom:8px">🔵 DAU来源拆分（每日）</p>
+      <div class="chart-wrapper"><canvas id="stackChart"></canvas></div>
+    </div>
+    <div>
+      <p style="color:#aaa;font-size:13px;margin-bottom:8px">📦 当日新增Install拆分（OM vs organic）</p>
+      <div class="chart-wrapper"><canvas id="installChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="table-section">
+  <h2>📊 逐日明细</h2>
+  <div class="tabs" id="tabButtons"></div>
+  <div class="table-wrapper">
+    <table id="detailTable">
+      <thead>
+        <tr>
+          <th rowspan="2">Day</th>
+          <th rowspan="2">DAU</th>
+          <th rowspan="2">PCU</th>
+          <th colspan="3" class="group-om" style="text-align:center">当日新增Install</th>
+          <th colspan="3" class="group-rev" style="text-align:center">DAU构成</th>
+        </tr>
+        <tr>
+          <th class="group-om">总Install</th>
+          <th class="group-om">OM买量</th>
+          <th class="group-om">Organic</th>
+          <th class="group-rev">回流</th>
+          <th class="group-om">OM新进</th>
+          <th class="group-org">Organic新进</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const data = {"ID":{"target_dau":35000,"total_installs":309759,"om_ratio":0.65,"revival_ratio":0.3,"daily":[{"day":1,"dau":36102,"pcu":5309,"new_install":36102,"new_install_om":23467,"new_install_org":12636,"revival_dau":10831,"new_om_dau":16427,"new_org_dau":8845},{"day":2,"dau":48016,"pcu":7061,"new_install":32492,"new_install_om":21120,"new_install_org":11372,"revival_dau":14405,"new_om_dau":21847,"new_org_dau":11764},{"day":3,"dau":52782,"pcu":7762,"new_install":28882,"new_install_om":18773,"new_install_org":10109,"revival_dau":15835,"new_om_dau":24016,"new_org_dau":12932},{"day":4,"dau":54762,"pcu":8053,"new_install":25272,"new_install_om":16427,"new_install_org":8845,"revival_dau":16429,"new_om_dau":24917,"new_org_dau":13417},{"day":5,"dau":58070,"pcu":8540,"new_install":25272,"new_install_om":16427,"new_install_org":8845,"revival_dau":17421,"new_om_dau":26422,"new_org_dau":14227},{"day":6,"dau":57450,"pcu":8448,"new_install":21661,"new_install_om":14080,"new_install_org":7582,"revival_dau":17235,"new_om_dau":26140,"new_org_dau":14075},{"day":7,"dau":52932,"pcu":7784,"new_install":16246,"new_install_om":10560,"new_install_org":5686,"revival_dau":15880,"new_om_dau":24084,"new_org_dau":12968},{"day":8,"dau":48394,"pcu":7117,"new_install":12636,"new_install_om":8213,"new_install_org":4423,"revival_dau":14518,"new_om_dau":22019,"new_org_dau":11857},{"day":9,"dau":45007,"pcu":6619,"new_install":10831,"new_install_om":7040,"new_install_org":3791,"revival_dau":13502,"new_om_dau":20478,"new_org_dau":11027},{"day":10,"dau":41652,"pcu":6125,"new_install":9026,"new_install_om":5867,"new_install_org":3159,"revival_dau":12496,"new_om_dau":18952,"new_org_dau":10205},{"day":11,"dau":38121,"pcu":5606,"new_install":7220,"new_install_om":4693,"new_install_org":2527,"revival_dau":11436,"new_om_dau":17345,"new_org_dau":9340},{"day":12,"dau":36236,"pcu":5329,"new_install":7220,"new_install_om":4693,"new_install_org":2527,"revival_dau":10871,"new_om_dau":16487,"new_org_dau":8878},{"day":13,"dau":34940,"pcu":5138,"new_install":7220,"new_install_om":4693,"new_install_org":2527,"revival_dau":10482,"new_om_dau":15898,"new_org_dau":8560},{"day":14,"dau":33199,"pcu":4882,"new_install":6498,"new_install_om":4224,"new_install_org":2274,"revival_dau":9960,"new_om_dau":15106,"new_org_dau":8134},{"day":15,"dau":31130,"pcu":4578,"new_install":5415,"new_install_om":3520,"new_install_org":1895,"revival_dau":9339,"new_om_dau":14164,"new_org_dau":7627},{"day":16,"dau":30047,"pcu":4419,"new_install":5415,"new_install_om":3520,"new_install_org":1895,"revival_dau":9014,"new_om_dau":13672,"new_org_dau":7362},{"day":17,"dau":29353,"pcu":4317,"new_install":5415,"new_install_om":3520,"new_install_org":1895,"revival_dau":8806,"new_om_dau":13355,"new_org_dau":7191},{"day":18,"dau":28866,"pcu":4245,"new_install":5415,"new_install_om":3520,"new_install_org":1895,"revival_dau":8660,"new_om_dau":13134,"new_org_dau":7072},{"day":19,"dau":27475,"pcu":4040,"new_install":4332,"new_install_om":2816,"new_install_org":1516,"revival_dau":8243,"new_om_dau":12501,"new_org_dau":6731},{"day":20,"dau":26839,"pcu":3947,"new_install":4332,"new_install_om":2816,"new_install_org":1516,"revival_dau":8052,"new_om_dau":12212,"new_org_dau":6576},{"day":21,"dau":26458,"pcu":3891,"new_install":4332,"new_install_om":2816,"new_install_org":1516,"revival_dau":7937,"new_om_dau":12038,"new_org_dau":6482},{"day":22,"dau":25455,"pcu":3743,"new_install":3610,"new_install_om":2347,"new_install_org":1264,"revival_dau":7636,"new_om_dau":11582,"new_org_dau":6236},{"day":23,"dau":24941,"pcu":3668,"new_install":3610,"new_install_om":2347,"new_install_org":1264,"revival_dau":7482,"new_om_dau":11348,"new_org_dau":6111},{"day":24,"dau":24596,"pcu":3617,"new_install":3610,"new_install_om":2347,"new_install_org":1264,"revival_dau":7379,"new_om_dau":11191,"new_org_dau":6026},{"day":25,"dau":24329,"pcu":3578,"new_install":3610,"new_install_om":2347,"new_install_org":1264,"revival_dau":7299,"new_om_dau":11070,"new_org_dau":5961},{"day":26,"dau":23391,"pcu":3440,"new_install":2888,"new_install_om":1877,"new_install_org":1011,"revival_dau":7017,"new_om_dau":10643,"new_org_dau":5731},{"day":27,"dau":22908,"pcu":3369,"new_install":2888,"new_install_om":1877,"new_install_org":1011,"revival_dau":6872,"new_om_dau":10423,"new_org_dau":5612},{"day":28,"dau":22572,"pcu":3319,"new_install":2888,"new_install_om":1877,"new_install_org":1011,"revival_dau":6772,"new_om_dau":10270,"new_org_dau":5530},{"day":29,"dau":22288,"pcu":3278,"new_install":2888,"new_install_om":1877,"new_install_org":1011,"revival_dau":6686,"new_om_dau":10141,"new_org_dau":5461},{"day":30,"dau":21688,"pcu":3189,"new_install":2527,"new_install_om":1643,"new_install_org":885,"revival_dau":6506,"new_om_dau":9868,"new_org_dau":5314}]},"SG":{"target_dau":20000,"total_installs":177005,"om_ratio":0.5,"revival_ratio":0.2,"daily":[{"day":1,"dau":20630,"pcu":3438,"new_install":20630,"new_install_om":10315,"new_install_org":10315,"revival_dau":4126,"new_om_dau":8252,"new_org_dau":8252},{"day":2,"dau":27438,"pcu":4573,"new_install":18567,"new_install_om":9283,"new_install_org":9283,"revival_dau":5488,"new_om_dau":10975,"new_org_dau":10975},{"day":3,"dau":30161,"pcu":5026,"new_install":16504,"new_install_om":8252,"new_install_org":8252,"revival_dau":6032,"new_om_dau":12064,"new_org_dau":12064},{"day":4,"dau":31293,"pcu":5215,"new_install":14441,"new_install_om":7220,"new_install_org":7220,"revival_dau":6259,"new_om_dau":12517,"new_org_dau":12517},{"day":5,"dau":33183,"pcu":5530,"new_install":14441,"new_install_om":7220,"new_install_org":7220,"revival_dau":6637,"new_om_dau":13273,"new_org_dau":13273},{"day":6,"dau":32828,"pcu":5471,"new_install":12378,"new_install_om":6189,"new_install_org":6189,"revival_dau":6566,"new_om_dau":13131,"new_org_dau":13131},{"day":7,"dau":30247,"pcu":5041,"new_install":9283,"new_install_om":4642,"new_install_org":4642,"revival_dau":6049,"new_om_dau":12099,"new_org_dau":12099},{"day":8,"dau":27654,"pcu":4609,"new_install":7220,"new_install_om":3610,"new_install_org":3610,"revival_dau":5531,"new_om_dau":11062,"new_org_dau":11062},{"day":9,"dau":25718,"pcu":4286,"new_install":6189,"new_install_om":3094,"new_install_org":3094,"revival_dau":5144,"new_om_dau":10287,"new_org_dau":10287},{"day":10,"dau":23801,"pcu":3966,"new_install":5157,"new_install_om":2579,"new_install_org":2579,"revival_dau":4760,"new_om_dau":9520,"new_org_dau":9520},{"day":11,"dau":21784,"pcu":3630,"new_install":4126,"new_install_om":2063,"new_install_org":2063,"revival_dau":4357,"new_om_dau":8713,"new_org_dau":8713},{"day":12,"dau":20706,"pcu":3451,"new_install":4126,"new_install_om":2063,"new_install_org":2063,"revival_dau":4141,"new_om_dau":8282,"new_org_dau":8282},{"day":13,"dau":19966,"pcu":3327,"new_install":4126,"new_install_om":2063,"new_install_org":2063,"revival_dau":3993,"new_om_dau":7986,"new_org_dau":7986},{"day":14,"dau":18971,"pcu":3162,"new_install":3713,"new_install_om":1857,"new_install_org":1857,"revival_dau":3794,"new_om_dau":7588,"new_org_dau":7588},{"day":15,"dau":17789,"pcu":2964,"new_install":3094,"new_install_om":1547,"new_install_org":1547,"revival_dau":3558,"new_om_dau":7115,"new_org_dau":7115},{"day":16,"dau":17170,"pcu":2861,"new_install":3094,"new_install_om":1547,"new_install_org":1547,"revival_dau":3434,"new_om_dau":6868,"new_org_dau":6868},{"day":17,"dau":16773,"pcu":2795,"new_install":3094,"new_install_om":1547,"new_install_org":1547,"revival_dau":3355,"new_om_dau":6709,"new_org_dau":6709},{"day":18,"dau":16495,"pcu":2749,"new_install":3094,"new_install_om":1547,"new_install_org":1547,"revival_dau":3299,"new_om_dau":6598,"new_org_dau":6598},{"day":19,"dau":15700,"pcu":2616,"new_install":2476,"new_install_om":1238,"new_install_org":1238,"revival_dau":3140,"new_om_dau":6280,"new_org_dau":6280},{"day":20,"dau":15337,"pcu":2556,"new_install":2476,"new_install_om":1238,"new_install_org":1238,"revival_dau":3067,"new_om_dau":6135,"new_org_dau":6135},{"day":21,"dau":15119,"pcu":2520,"new_install":2476,"new_install_om":1238,"new_install_org":1238,"revival_dau":3024,"new_om_dau":6048,"new_org_dau":6048},{"day":22,"dau":14546,"pcu":2424,"new_install":2063,"new_install_om":1031,"new_install_org":1031,"revival_dau":2909,"new_om_dau":5818,"new_org_dau":5818},{"day":23,"dau":14252,"pcu":2375,"new_install":2063,"new_install_om":1031,"new_install_org":1031,"revival_dau":2850,"new_om_dau":5701,"new_org_dau":5701},{"day":24,"dau":14055,"pcu":2342,"new_install":2063,"new_install_om":1031,"new_install_org":1031,"revival_dau":2811,"new_om_dau":5622,"new_org_dau":5622},{"day":25,"dau":13902,"pcu":2317,"new_install":2063,"new_install_om":1031,"new_install_org":1031,"revival_dau":2780,"new_om_dau":5561,"new_org_dau":5561},{"day":26,"dau":13366,"pcu":2227,"new_install":1650,"new_install_om":825,"new_install_org":825,"revival_dau":2673,"new_om_dau":5346,"new_org_dau":5346},{"day":27,"dau":13090,"pcu":2182,"new_install":1650,"new_install_om":825,"new_install_org":825,"revival_dau":2618,"new_om_dau":5236,"new_org_dau":5236},{"day":28,"dau":12898,"pcu":2149,"new_install":1650,"new_install_om":825,"new_install_org":825,"revival_dau":2580,"new_om_dau":5159,"new_org_dau":5159},{"day":29,"dau":12736,"pcu":2122,"new_install":1650,"new_install_om":825,"new_install_org":825,"revival_dau":2547,"new_om_dau":5094,"new_org_dau":5094},{"day":30,"dau":12393,"pcu":2065,"new_install":1444,"new_install_om":722,"new_install_org":722,"revival_dau":2479,"new_om_dau":4957,"new_org_dau":4957}]},"US":{"target_dau":15000,"total_installs":132754,"om_ratio":0.6,"revival_ratio":0.35,"daily":[{"day":1,"dau":15472,"pcu":2579,"new_install":15472,"new_install_om":9283,"new_install_org":6189,"revival_dau":5415,"new_om_dau":6034,"new_org_dau":4023},{"day":2,"dau":20578,"pcu":3430,"new_install":13925,"new_install_om":8355,"new_install_org":5570,"revival_dau":7202,"new_om_dau":8026,"new_org_dau":5350},{"day":3,"dau":22621,"pcu":3770,"new_install":12378,"new_install_om":7427,"new_install_org":4951,"revival_dau":7917,"new_om_dau":8822,"new_org_dau":5881},{"day":4,"dau":23469,"pcu":3912,"new_install":10831,"new_install_om":6498,"new_install_org":4332,"revival_dau":8214,"new_om_dau":9153,"new_org_dau":6102},{"day":5,"dau":24887,"pcu":4148,"new_install":10831,"new_install_om":6498,"new_install_org":4332,"revival_dau":8710,"new_om_dau":9706,"new_org_dau":6471},{"day":6,"dau":24621,"pcu":4104,"new_install":9283,"new_install_om":5570,"new_install_org":3713,"revival_dau":8617,"new_om_dau":9602,"new_org_dau":6402},{"day":7,"dau":22685,"pcu":3781,"new_install":6963,"new_install_om":4178,"new_install_org":2785,"revival_dau":7940,"new_om_dau":8847,"new_org_dau":5898},{"day":8,"dau":20740,"pcu":3457,"new_install":5415,"new_install_om":3249,"new_install_org":2166,"revival_dau":7259,"new_om_dau":8089,"new_org_dau":5393},{"day":9,"dau":19289,"pcu":3215,"new_install":4642,"new_install_om":2785,"new_install_org":1857,"revival_dau":6751,"new_om_dau":7523,"new_org_dau":5015},{"day":10,"dau":17851,"pcu":2975,"new_install":3868,"new_install_om":2321,"new_install_org":1547,"revival_dau":6248,"new_om_dau":6962,"new_org_dau":4641},{"day":11,"dau":16338,"pcu":2723,"new_install":3094,"new_install_om":1857,"new_install_org":1238,"revival_dau":5718,"new_om_dau":6372,"new_org_dau":4248},{"day":12,"dau":15530,"pcu":2588,"new_install":3094,"new_install_om":1857,"new_install_org":1238,"revival_dau":5435,"new_om_dau":6057,"new_org_dau":4038},{"day":13,"dau":14974,"pcu":2496,"new_install":3094,"new_install_om":1857,"new_install_org":1238,"revival_dau":5241,"new_om_dau":5840,"new_org_dau":3893},{"day":14,"dau":14228,"pcu":2371,"new_install":2785,"new_install_om":1671,"new_install_org":1114,"revival_dau":4980,"new_om_dau":5549,"new_org_dau":3699},{"day":15,"dau":13342,"pcu":2224,"new_install":2321,"new_install_om":1393,"new_install_org":928,"revival_dau":4670,"new_om_dau":5203,"new_org_dau":3469},{"day":16,"dau":12877,"pcu":2146,"new_install":2321,"new_install_om":1393,"new_install_org":928,"revival_dau":4507,"new_om_dau":5022,"new_org_dau":3348},{"day":17,"dau":12580,"pcu":2097,"new_install":2321,"new_install_om":1393,"new_install_org":928,"revival_dau":4403,"new_om_dau":4906,"new_org_dau":3271},{"day":18,"dau":12371,"pcu":2062,"new_install":2321,"new_install_om":1393,"new_install_org":928,"revival_dau":4330,"new_om_dau":4825,"new_org_dau":3216},{"day":19,"dau":11775,"pcu":1963,"new_install":1857,"new_install_om":1114,"new_install_org":743,"revival_dau":4121,"new_om_dau":4592,"new_org_dau":3062},{"day":20,"dau":11503,"pcu":1917,"new_install":1857,"new_install_om":1114,"new_install_org":743,"revival_dau":4026,"new_om_dau":4486,"new_org_dau":2991},{"day":21,"dau":11339,"pcu":1890,"new_install":1857,"new_install_om":1114,"new_install_org":743,"revival_dau":3969,"new_om_dau":4422,"new_org_dau":2948},{"day":22,"dau":10909,"pcu":1818,"new_install":1547,"new_install_om":928,"new_install_org":619,"revival_dau":3818,"new_om_dau":4255,"new_org_dau":2836},{"day":23,"dau":10689,"pcu":1781,"new_install":1547,"new_install_om":928,"new_install_org":619,"revival_dau":3741,"new_om_dau":4169,"new_org_dau":2779},{"day":24,"dau":10541,"pcu":1757,"new_install":1547,"new_install_om":928,"new_install_org":619,"revival_dau":3689,"new_om_dau":4111,"new_org_dau":2741},{"day":25,"dau":10427,"pcu":1738,"new_install":1547,"new_install_om":928,"new_install_org":619,"revival_dau":3649,"new_om_dau":4066,"new_org_dau":2711},{"day":26,"dau":10025,"pcu":1671,"new_install":1238,"new_install_om":743,"new_install_org":495,"revival_dau":3509,"new_om_dau":3910,"new_org_dau":2606},{"day":27,"dau":9818,"pcu":1636,"new_install":1238,"new_install_om":743,"new_install_org":495,"revival_dau":3436,"new_om_dau":3829,"new_org_dau":2553},{"day":28,"dau":9674,"pcu":1612,"new_install":1238,"new_install_om":743,"new_install_org":495,"revival_dau":3386,"new_om_dau":3773,"new_org_dau":2515},{"day":29,"dau":9552,"pcu":1592,"new_install":1238,"new_install_om":743,"new_install_org":495,"revival_dau":3343,"new_om_dau":3725,"new_org_dau":2484},{"day":30,"dau":9295,"pcu":1549,"new_install":1083,"new_install_om":650,"new_install_org":433,"revival_dau":3253,"new_om_dau":3625,"new_org_dau":2417}]},"BR":{"target_dau":9000,"total_installs":79652,"om_ratio":0.27,"revival_ratio":0.25,"daily":[{"day":1,"dau":9283,"pcu":1547,"new_install":9283,"new_install_om":2507,"new_install_org":6777,"revival_dau":2321,"new_om_dau":1880,"new_org_dau":5083},{"day":2,"dau":12347,"pcu":2058,"new_install":8355,"new_install_om":2256,"new_install_org":6099,"revival_dau":3087,"new_om_dau":2500,"new_org_dau":6760},{"day":3,"dau":13572,"pcu":2262,"new_install":7427,"new_install_om":2005,"new_install_org":5422,"revival_dau":3393,"new_om_dau":2748,"new_org_dau":7431},{"day":4,"dau":14082,"pcu":2347,"new_install":6498,"new_install_om":1755,"new_install_org":4744,"revival_dau":3520,"new_om_dau":2852,"new_org_dau":7710},{"day":5,"dau":14932,"pcu":2489,"new_install":6498,"new_install_om":1755,"new_install_org":4744,"revival_dau":3733,"new_om_dau":3024,"new_org_dau":8175},{"day":6,"dau":14773,"pcu":2462,"new_install":5570,"new_install_om":1504,"new_install_org":4066,"revival_dau":3693,"new_om_dau":2991,"new_org_dau":8088},{"day":7,"dau":13611,"pcu":2269,"new_install":4178,"new_install_om":1128,"new_install_org":3050,"revival_dau":3403,"new_om_dau":2756,"new_org_dau":7452},{"day":8,"dau":12444,"pcu":2074,"new_install":3249,"new_install_om":877,"new_install_org":2372,"revival_dau":3111,"new_om_dau":2520,"new_org_dau":6813},{"day":9,"dau":11573,"pcu":1929,"new_install":2785,"new_install_om":752,"new_install_org":2033,"revival_dau":2893,"new_om_dau":2344,"new_org_dau":6336},{"day":10,"dau":10710,"pcu":1785,"new_install":2321,"new_install_om":627,"new_install_org":1694,"revival_dau":2678,"new_om_dau":2169,"new_org_dau":5864},{"day":11,"dau":9803,"pcu":1634,"new_install":1857,"new_install_om":501,"new_install_org":1355,"revival_dau":2451,"new_om_dau":1985,"new_org_dau":5367},{"day":12,"dau":9318,"pcu":1553,"new_install":1857,"new_install_om":501,"new_install_org":1355,"revival_dau":2329,"new_om_dau":1887,"new_org_dau":5101},{"day":13,"dau":8985,"pcu":1497,"new_install":1857,"new_install_om":501,"new_install_org":1355,"revival_dau":2246,"new_om_dau":1819,"new_org_dau":4919},{"day":14,"dau":8537,"pcu":1423,"new_install":1671,"new_install_om":451,"new_install_org":1220,"revival_dau":2134,"new_om_dau":1729,"new_org_dau":4674},{"day":15,"dau":8005,"pcu":1334,"new_install":1393,"new_install_om":376,"new_install_org":1017,"revival_dau":2001,"new_om_dau":1621,"new_org_dau":4383},{"day":16,"dau":7726,"pcu":1288,"new_install":1393,"new_install_om":376,"new_install_org":1017,"revival_dau":1932,"new_om_dau":1565,"new_org_dau":4230},{"day":17,"dau":7548,"pcu":1258,"new_install":1393,"new_install_om":376,"new_install_org":1017,"revival_dau":1887,"new_om_dau":1528,"new_org_dau":4132},{"day":18,"dau":7423,"pcu":1237,"new_install":1393,"new_install_om":376,"new_install_org":1017,"revival_dau":1856,"new_om_dau":1503,"new_org_dau":4064},{"day":19,"dau":7065,"pcu":1178,"new_install":1114,"new_install_om":301,"new_install_org":813,"revival_dau":1766,"new_om_dau":1431,"new_org_dau":3868},{"day":20,"dau":6902,"pcu":1150,"new_install":1114,"new_install_om":301,"new_install_org":813,"revival_dau":1725,"new_om_dau":1398,"new_org_dau":3779},{"day":21,"dau":6803,"pcu":1134,"new_install":1114,"new_install_om":301,"new_install_org":813,"revival_dau":1701,"new_om_dau":1378,"new_org_dau":3725},{"day":22,"dau":6546,"pcu":1091,"new_install":928,"new_install_om":251,"new_install_org":678,"revival_dau":1636,"new_om_dau":1325,"new_org_dau":3584},{"day":23,"dau":6413,"pcu":1069,"new_install":928,"new_install_om":251,"new_install_org":678,"revival_dau":1603,"new_om_dau":1299,"new_org_dau":3511},{"day":24,"dau":6325,"pcu":1054,"new_install":928,"new_install_om":251,"new_install_org":678,"revival_dau":1581,"new_om_dau":1281,"new_org_dau":3463},{"day":25,"dau":6256,"pcu":1043,"new_install":928,"new_install_om":251,"new_install_org":678,"revival_dau":1564,"new_om_dau":1267,"new_org_dau":3425},{"day":26,"dau":6015,"pcu":1002,"new_install":743,"new_install_om":201,"new_install_org":542,"revival_dau":1504,"new_om_dau":1218,"new_org_dau":3293},{"day":27,"dau":5891,"pcu":982,"new_install":743,"new_install_om":201,"new_install_org":542,"revival_dau":1473,"new_om_dau":1193,"new_org_dau":3225},{"day":28,"dau":5804,"pcu":967,"new_install":743,"new_install_om":201,"new_install_org":542,"revival_dau":1451,"new_om_dau":1175,"new_org_dau":3178},{"day":29,"dau":5731,"pcu":955,"new_install":743,"new_install_om":201,"new_install_org":542,"revival_dau":1433,"new_om_dau":1161,"new_org_dau":3138},{"day":30,"dau":5577,"pcu":929,"new_install":650,"new_install_om":175,"new_install_org":474,"revival_dau":1394,"new_om_dau":1129,"new_org_dau":3053}]},"SAC":{"target_dau":10000,"total_installs":88503,"om_ratio":0.46,"revival_ratio":0.1,"daily":[{"day":1,"dau":10315,"pcu":1720,"new_install":10315,"new_install_om":4745,"new_install_org":5570,"revival_dau":1031,"new_om_dau":4270,"new_org_dau":5013},{"day":2,"dau":13719,"pcu":2287,"new_install":9283,"new_install_om":4270,"new_install_org":5013,"revival_dau":1372,"new_om_dau":5680,"new_org_dau":6667},{"day":3,"dau":15081,"pcu":2514,"new_install":8252,"new_install_om":3796,"new_install_org":4456,"revival_dau":1508,"new_om_dau":6243,"new_org_dau":7329},{"day":4,"dau":15646,"pcu":2608,"new_install":7220,"new_install_om":3321,"new_install_org":3899,"revival_dau":1565,"new_om_dau":6478,"new_org_dau":7604},{"day":5,"dau":16591,"pcu":2766,"new_install":7220,"new_install_om":3321,"new_install_org":3899,"revival_dau":1659,"new_om_dau":6869,"new_org_dau":8063},{"day":6,"dau":16414,"pcu":2736,"new_install":6189,"new_install_om":2847,"new_install_org":3342,"revival_dau":1641,"new_om_dau":6795,"new_org_dau":7977},{"day":7,"dau":15123,"pcu":2521,"new_install":4642,"new_install_om":2135,"new_install_org":2507,"revival_dau":1512,"new_om_dau":6261,"new_org_dau":7350},{"day":8,"dau":13827,"pcu":2305,"new_install":3610,"new_install_om":1661,"new_install_org":1950,"revival_dau":1383,"new_om_dau":5724,"new_org_dau":6720},{"day":9,"dau":12859,"pcu":2144,"new_install":3094,"new_install_om":1423,"new_install_org":1671,"revival_dau":1286,"new_om_dau":5324,"new_org_dau":6250},{"day":10,"dau":11900,"pcu":1984,"new_install":2579,"new_install_om":1186,"new_install_org":1393,"revival_dau":1190,"new_om_dau":4927,"new_org_dau":5784},{"day":11,"dau":10892,"pcu":1816,"new_install":2063,"new_install_om":949,"new_install_org":1114,"revival_dau":1089,"new_om_dau":4509,"new_org_dau":5293},{"day":12,"dau":10353,"pcu":1726,"new_install":2063,"new_install_om":949,"new_install_org":1114,"revival_dau":1035,"new_om_dau":4286,"new_org_dau":5032},{"day":13,"dau":9983,"pcu":1664,"new_install":2063,"new_install_om":949,"new_install_org":1114,"revival_dau":998,"new_om_dau":4133,"new_org_dau":4852},{"day":14,"dau":9485,"pcu":1581,"new_install":1857,"new_install_om":854,"new_install_org":1003,"revival_dau":949,"new_om_dau":3927,"new_org_dau":4610},{"day":15,"dau":8894,"pcu":1483,"new_install":1547,"new_install_om":712,"new_install_org":836,"revival_dau":889,"new_om_dau":3682,"new_org_dau":4323},{"day":16,"dau":8585,"pcu":1431,"new_install":1547,"new_install_om":712,"new_install_org":836,"revival_dau":858,"new_om_dau":3554,"new_org_dau":4172},{"day":17,"dau":8386,"pcu":1398,"new_install":1547,"new_install_om":712,"new_install_org":836,"revival_dau":839,"new_om_dau":3472,"new_org_dau":4076},{"day":18,"dau":8247,"pcu":1375,"new_install":1547,"new_install_om":712,"new_install_org":836,"revival_dau":825,"new_om_dau":3414,"new_org_dau":4008},{"day":19,"dau":7850,"pcu":1309,"new_install":1238,"new_install_om":569,"new_install_org":668,"revival_dau":785,"new_om_dau":3250,"new_org_dau":3815},{"day":20,"dau":7668,"pcu":1278,"new_install":1238,"new_install_om":569,"new_install_org":668,"revival_dau":767,"new_om_dau":3175,"new_org_dau":3727},{"day":21,"dau":7559,"pcu":1260,"new_install":1238,"new_install_om":569,"new_install_org":668,"revival_dau":756,"new_om_dau":3130,"new_org_dau":3674},{"day":22,"dau":7273,"pcu":1212,"new_install":1031,"new_install_om":474,"new_install_org":557,"revival_dau":727,"new_om_dau":3011,"new_org_dau":3535},{"day":23,"dau":7126,"pcu":1188,"new_install":1031,"new_install_om":474,"new_install_org":557,"revival_dau":713,"new_om_dau":2950,"new_org_dau":3463},{"day":24,"dau":7028,"pcu":1171,"new_install":1031,"new_install_om":474,"new_install_org":557,"revival_dau":703,"new_om_dau":2909,"new_org_dau":3415},{"day":25,"dau":6951,"pcu":1159,"new_install":1031,"new_install_om":474,"new_install_org":557,"revival_dau":695,"new_om_dau":2878,"new_org_dau":3378},{"day":26,"dau":6683,"pcu":1114,"new_install":825,"new_install_om":380,"new_install_org":446,"revival_dau":668,"new_om_dau":2767,"new_org_dau":3248},{"day":27,"dau":6545,"pcu":1091,"new_install":825,"new_install_om":380,"new_install_org":446,"revival_dau":655,"new_om_dau":2710,"new_org_dau":3181},{"day":28,"dau":6449,"pcu":1075,"new_install":825,"new_install_om":380,"new_install_org":446,"revival_dau":645,"new_om_dau":2670,"new_org_dau":3134},{"day":29,"dau":6368,"pcu":1062,"new_install":825,"new_install_om":380,"new_install_org":446,"revival_dau":637,"new_om_dau":2636,"new_org_dau":3095},{"day":30,"dau":6197,"pcu":1033,"new_install":722,"new_install_om":332,"new_install_org":390,"revival_dau":620,"new_om_dau":2565,"new_org_dau":3012}]}};
+
+const colors = {ID:'#4e9af1',SG:'#f1c44e',US:'#4ef1a0',BR:'#f14e4e',SAC:'#c44ef1'};
+const regions = ['ID','SG','US','BR','SAC'];
+const days = Array.from({length:30},(_,i)=>i+1);
+
+// 汇总卡片
+const summaryEl = document.getElementById('summaryCards');
+regions.forEach(r => {
+  const d = data[r];
+  const avgDau = Math.round(d.daily.reduce((s,x)=>s+x.dau,0)/30);
+  const avgRevival = Math.round(d.daily.reduce((s,x)=>s+x.revival_dau,0)/30);
+  const avgOm = Math.round(d.daily.reduce((s,x)=>s+x.new_om_dau,0)/30);
+  const avgOrg = Math.round(d.daily.reduce((s,x)=>s+x.new_org_dau,0)/30);
+  const totalInst = d.total_installs;
+  const omInst = Math.round(totalInst * d.om_ratio);
+  const orgInst = totalInst - omInst;
+  summaryEl.innerHTML += `
+    <div class="card ${r}">
+      <h3>${r} 服</h3>
+      <div class="metric"><span class="label">目标首月均DAU</span><span class="value">${d.target_dau.toLocaleString()}</span></div>
+      <div class="metric"><span class="label">首月总Install</span><span class="value">${totalInst.toLocaleString()}</span></div>
+      <div class="divider"></div>
+      <div class="sub-metric"><span class="sub-label">OM买量Install</span><span style="color:#64b5f6">${omInst.toLocaleString()} (${(d.om_ratio*100).toFixed(0)}%)</span></div>
+      <div class="sub-metric"><span class="sub-label">Organic Install</span><span style="color:#4ef1a0">${orgInst.toLocaleString()} (${((1-d.om_ratio)*100).toFixed(0)}%)</span></div>
+      <div class="divider"></div>
+      <div class="sub-metric"><span class="sub-label">均DAU回流</span><span style="color:#f1a44e">${avgRevival.toLocaleString()} (${(d.revival_ratio*100).toFixed(0)}%)</span></div>
+      <div class="sub-metric"><span class="sub-label">均DAU OM新进</span><span style="color:#64b5f6">${avgOm.toLocaleString()}</span></div>
+      <div class="sub-metric"><span class="sub-label">均DAU Organic新进</span><span style="color:#4ef1a0">${avgOrg.toLocaleString()}</span></div>
+    </div>`;
+});
+
+// DAU走势
+new Chart(document.getElementById('dauChart').getContext('2d'), {
+  type:'line',
+  data:{labels:days,datasets:regions.map(r=>({label:r,data:data[r].daily.map(d=>d.dau),borderColor:colors[r],borderWidth:2,pointRadius:0,tension:0.3,fill:false}))},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2a2d3e'},ticks:{color:'#666'}},y:{grid:{color:'#2a2d3e'},ticks:{color:'#666',callback:v=>v>=1000?v/1000+'k':v}}}}
+});
+
+// 堆叠DAU构成图（全区合计）
+const totalRevival = days.map((_,i)=>regions.reduce((s,r)=>s+data[r].daily[i].revival_dau,0));
+const totalOm = days.map((_,i)=>regions.reduce((s,r)=>s+data[r].daily[i].new_om_dau,0));
+const totalOrg = days.map((_,i)=>regions.reduce((s,r)=>s+data[r].daily[i].new_org_dau,0));
+new Chart(document.getElementById('stackChart').getContext('2d'), {
+  type:'bar',
+  data:{labels:days,datasets:[
+    {label:'回流',data:totalRevival,backgroundColor:'#f1a44e88',borderColor:'#f1a44e',borderWidth:1},
+    {label:'OM新进',data:totalOm,backgroundColor:'#4e9af188',borderColor:'#4e9af1',borderWidth:1},
+    {label:'Organic新进',data:totalOrg,backgroundColor:'#4ef1a088',borderColor:'#4ef1a0',borderWidth:1}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#aaa'}}},scales:{x:{stacked:true,grid:{color:'#2a2d3e'},ticks:{color:'#666'}},y:{stacked:true,grid:{color:'#2a2d3e'},ticks:{color:'#666',callback:v=>v>=1000?v/1000+'k':v}}}}
+});
+
+// Install拆分图
+const totalInstOm = days.map((_,i)=>regions.reduce((s,r)=>s+data[r].daily[i].new_install_om,0));
+const totalInstOrg = days.map((_,i)=>regions.reduce((s,r)=>s+data[r].daily[i].new_install_org,0));
+new Chart(document.getElementById('installChart').getContext('2d'), {
+  type:'bar',
+  data:{labels:days,datasets:[
+    {label:'OM买量',data:totalInstOm,backgroundColor:'#4e9af188',borderColor:'#4e9af1',borderWidth:1},
+    {label:'Organic',data:totalInstOrg,backgroundColor:'#4ef1a088',borderColor:'#4ef1a0',borderWidth:1}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#aaa'}}},scales:{x:{stacked:true,grid:{color:'#2a2d3e'},ticks:{color:'#666'}},y:{stacked:true,grid:{color:'#2a2d3e'},ticks:{color:'#666',callback:v=>v>=1000?v/1000+'k':v}}}}
+});
+
+// Tab + 表格
+let cur='ID';
+const tabEl=document.getElementById('tabButtons');
+const tbody=document.getElementById('tableBody');
+regions.forEach(r=>{
+  const btn=document.createElement('button');
+  btn.className=`tab-btn ${r}${r===cur?' active':''}`;
+  btn.textContent=r+'服';
+  btn.onclick=()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.className=`tab-btn ${b.textContent.replace('服','')}`);btn.className=`tab-btn ${r} active`;cur=r;renderTable(r);};
+  tabEl.appendChild(btn);
+});
+
+function renderTable(r){
+  tbody.innerHTML=data[r].daily.map(d=>`<tr>
+    <td>D${d.day}</td>
+    <td class="col-dau">${d.dau.toLocaleString()}</td>
+    <td class="col-pcu">${d.pcu.toLocaleString()}</td>
+    <td class="col-install">${d.new_install.toLocaleString()}</td>
+    <td class="col-om">${d.new_install_om.toLocaleString()}</td>
+    <td class="col-org">${d.new_install_org.toLocaleString()}</td>
+    <td class="col-rev">${d.revival_dau.toLocaleString()}</td>
+    <td class="col-om">${d.new_om_dau.toLocaleString()}</td>
+    <td class="col-org">${d.new_org_dau.toLocaleString()}</td>
+  </tr>`).join('');
+}
+renderTable('ID');
+</script>
+</body>
+</html>

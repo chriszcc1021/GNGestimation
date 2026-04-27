@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GNG 新版本首月预估 v4</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; }
+.header { background: linear-gradient(135deg, #1a1f2e 0%, #252d3d 100%); padding: 28px 40px; border-bottom: 1px solid #2d3748; }
+.header h1 { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.header .subtitle { color: #94a3b8; font-size: 13px; }
+.badge { display: inline-block; background: #3b82f6; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 10px; vertical-align: middle; }
+.content { max-width: 1400px; margin: 0 auto; padding: 28px 24px; }
+.section-title { font-size: 18px; font-weight: 700; color: #f1f5f9; margin: 36px 0 14px 0; padding-left: 12px; border-left: 4px solid #3b82f6; }
+
+/* Summary table */
+.summary-wrap { background: #1e2535; border: 1px solid #2d3748; border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+.summary-wrap table { width: 100%; border-collapse: collapse; }
+.summary-wrap th { background: #1a2030; padding: 11px 14px; font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: right; border-bottom: 2px solid #2d3748; }
+.summary-wrap th:first-child { text-align: left; }
+.summary-wrap td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #1a2030; text-align: right; vertical-align: top; }
+.summary-wrap td:first-child { text-align: left; font-weight: 700; color: #f1f5f9; }
+.summary-wrap tr:last-child td { border-bottom: none; }
+.summary-wrap tr:hover > td { background: #252d3d; }
+
+/* Expandable detail row */
+.expand-btn { background: none; border: 1px solid #2d3748; color: #64748b; padding: 3px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s; }
+.expand-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+.detail-row { display: none; }
+.detail-row.open { display: table-row; }
+.detail-cell { background: #141924 !important; padding: 14px 20px !important; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.detail-box { background: #1e2535; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 16px; }
+.detail-box .db-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+.detail-row-item { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+.detail-row-item .lbl { color: #64748b; }
+.detail-row-item .val { font-weight: 600; }
+
+/* Colors */
+.revival { color: #f59e0b; }
+.om { color: #10b981; }
+.organic { color: #6366f1; }
+.primary { color: #3b82f6; }
+.muted { color: #64748b; }
+.highlight { color: #fff; font-weight: 800; }
+
+/* Charts */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+.chart-box { background: #1e2535; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; }
+.chart-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; color: #f1f5f9; }
+.chart-box canvas { max-height: 260px; }
+.chart-full { grid-column: 1 / -1; }
+
+/* Region tabs for daily detail */
+.tab-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab-btn { padding: 7px 18px; border-radius: 8px; border: 1px solid #2d3748; background: #1e2535; color: #94a3b8; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.tab-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+.tab-btn.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+
+/* Daily tables */
+.daily-wrap { background: #1e2535; border: 1px solid #2d3748; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+.daily-panel { display: none; }
+.daily-panel.active { display: block; overflow-x: auto; }
+.daily-wrap table { width: 100%; border-collapse: collapse; min-width: 600px; }
+.daily-wrap th { background: #1a2030; padding: 9px 12px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; text-align: right; border-bottom: 1px solid #2d3748; }
+.daily-wrap th:first-child { text-align: left; }
+.daily-wrap td { padding: 8px 12px; font-size: 12px; border-bottom: 1px solid #141924; text-align: right; }
+.daily-wrap td:first-child { text-align: left; font-weight: 600; color: #94a3b8; }
+.daily-wrap tr.hl td { background: #252d3d; }
+.daily-wrap tr:last-child td { border-bottom: none; }
+.daily-wrap .region-header { padding: 10px 16px; background: #252d3d; font-size: 13px; font-weight: 700; color: #f1f5f9; border-bottom: 1px solid #2d3748; display: flex; align-items: center; gap: 8px; }
+.region-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>GNG 新版本首月预估 <span class="badge">v4</span></h1>
+  <div class="subtitle">生成时间：2026-04-08 | 区域：ID · SG · US · BR · SAC | OM/Organic比例基于真实历史数据</div>
+</div>
+
+<div class="content">
+
+  <!-- 汇总预估表 -->
+  <div class="section-title">🚀 新版本首月预估汇总</div>
+  <div class="summary-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>区域</th>
+          <th>首月均DAU</th>
+          <th>日均新进</th>
+          <th>月总回流用户</th>
+          <th>月总OM买量</th>
+          <th>月总Organic</th>
+          <th>总Install量</th>
+          <th>回流率（vs v2老用户）</th>
+          <th>历史参考</th>
+        </tr>
+      </thead>
+      <tbody id="summaryBody"></tbody>
+    </table>
+  </div>
+
+  <!-- 图表 -->
+  <div class="section-title">📈 数据可视化</div>
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>各区均DAU用户构成（回流 / OM / Organic）</h3>
+      <canvas id="compositionChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>历史版本 OM / Organic 比例对比</h3>
+      <canvas id="histChart"></canvas>
+    </div>
+    <div class="chart-box chart-full">
+      <h3>新版本首月 D1~D30 DAU 走势（各区）</h3>
+      <canvas id="dauChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 逐日明细（按区域切换） -->
+  <div class="section-title">📋 逐日明细（按区域）</div>
+  <div class="tab-bar" id="tabBar"></div>
+  <div class="daily-wrap">
+    <div id="dailyPanels"></div>
+  </div>
+
+</div>
+
+<script>
+// ===== 基础数据 =====
+const regions = ['ID','SG','US','BR','SAC'];
+const regionNames = {ID:'ID（印尼）',SG:'SG（东南亚）',US:'US（北美/MX）',BR:'BR（巴西）',SAC:'SAC（南美）'};
+const regionColors = {ID:'#3b82f6',SG:'#10b981',US:'#f59e0b',BR:'#f43f5e',SAC:'#a855f7'};
+
+const targetAvgDAU = {ID:35000,SG:20000,US:15000,BR:9000,SAC:10000};
+const revivalPct   = {ID:0.30,SG:0.20,US:0.35,BR:0.25,SAC:0.10};
+const omPctOfNew   = {ID:0.652,SG:0.510,US:0.548,BR:0.272,SAC:0.661};
+
+// 版本2历史数据
+const v2data = {
+  ID:  {om:266263, org:141993, total:408256, omPct:65.2, orgPct:34.8, revivalPool:409087},
+  SG:  {om:57111,  org:54859,  total:111970, omPct:51.0, orgPct:49.0, revivalPool:89535},
+  US:  {om:72296,  org:59690,  total:131986, omPct:54.8, orgPct:45.2, revivalPool:116256},
+  BR:  {om:32592,  org:87170,  total:119762, omPct:27.2, orgPct:72.8, revivalPool:119762, note:'版本1数据（v2无BR）'},
+  SAC: {om:90745,  org:46513,  total:137258, omPct:66.1, orgPct:33.9, revivalPool:137258},
+};
+
+// 留存曲线（对数插值）
+function getRetention(day) {
+  const nodes = [[1,1.0],[2,0.43],[3,0.275],[7,0.124],[14,0.062],[30,0.043]];
+  if (day <= 1) return 1.0;
+  for (let i = 0; i < nodes.length-1; i++) {
+    const [d1,r1]=nodes[i],[d2,r2]=nodes[i+1];
+    if (day>=d1&&day<=d2) {
+      const t=(Math.log(day)-Math.log(d1))/(Math.log(d2)-Math.log(d1));
+      return r1*Math.pow(r2/r1,t);
+    }
+  }
+  return 0.043;
+}
+
+// 推广节奏：前7天60%，7-14天25%，14-30天15%
+function getDailyFactor(day) {
+  if(day<=7) return 0.60/7;
+  if(day<=14) return 0.25/7;
+  return 0.15/16;
+}
+
+function computeTotalInstall(lr) {
+  const newDAUTarget = targetAvgDAU[lr]*(1-revivalPct[lr]);
+  let factors = Array.from({length:30},(_,i)=>getDailyFactor(i+1));
+  const s = factors.reduce((a,b)=>a+b,0);
+  factors = factors.map(f=>f/s);
+  let contrib = 0;
+  for(let t=1;t<=30;t++) for(let k=1;k<=t;k++) contrib += factors[k-1]*getRetention(t-k+1);
+  return newDAUTarget/(contrib/30);
+}
+
+function generateDaily(lr) {
+  const totalInstall = computeTotalInstall(lr);
+  let factors = Array.from({length:30},(_,i)=>getDailyFactor(i+1));
+  const s = factors.reduce((a,b)=>a+b,0);
+  factors = factors.map(f=>f/s);
+  const dailyInstall = factors.map(f=>f*totalInstall);
+
+  const revivalBase = targetAvgDAU[lr]*revivalPct[lr];
+  const revivalByDay = Array.from({length:30},(_,i)=>{
+    const d=i+1;
+    const factor = d<=3?1.4-0.1*d:d<=7?1.1-0.02*d:1.0;
+    return revivalBase*factor;
+  });
+
+  const omPct = omPctOfNew[lr];
+  return Array.from({length:30},(_,i)=>{
+    const t=i+1;
+    let newDAU=0;
+    for(let k=1;k<=t;k++) newDAU+=dailyInstall[k-1]*getRetention(t-k+1);
+    const rev = revivalByDay[i];
+    const omDAU = newDAU*omPct;
+    const orgDAU = newDAU*(1-omPct);
+    return {
+      day:t,
+      install:Math.round(dailyInstall[i]),
+      omInstall:Math.round(dailyInstall[i]*omPct),
+      orgInstall:Math.round(dailyInstall[i]*(1-omPct)),
+      newDAU:Math.round(newDAU),
+      omDAU:Math.round(omDAU),
+      orgDAU:Math.round(orgDAU),
+      revivalDAU:Math.round(rev),
+      totalDAU:Math.round(newDAU+rev),
+    };
+  });
+}
+
+const allData = {};
+const totalInstalls = {};
+regions.forEach(lr=>{
+  allData[lr]=generateDaily(lr);
+  totalInstalls[lr]=Math.round(computeTotalInstall(lr));
+});
+
+// ===== 汇总表 =====
+function fmt(n) { return Math.round(n).toLocaleString(); }
+function pct(n) { return n.toFixed(1)+'%'; }
+
+const tbody = document.getElementById('summaryBody');
+regions.forEach(lr => {
+  const avgDAU = targetAvgDAU[lr];
+  const revDAU = avgDAU * revivalPct[lr];
+  const newDAU = avgDAU * (1-revivalPct[lr]);
+  const omDAU = newDAU * omPctOfNew[lr];
+  const orgDAU = newDAU * (1-omPctOfNew[lr]);
+  // 月总量 ≈ 均DAU × 30
+  const revTotal = Math.round(revDAU*30);
+  const omTotal = Math.round(omDAU*30);
+  const orgTotal = Math.round(orgDAU*30);
+  const v2 = v2data[lr];
+  // 回流率 = 新版回流DAU / v2历史总安装
+  const revivalRate = (revDAU / v2.revivalPool * 100).toFixed(1)+'%';
+
+  const mainTr = document.createElement('tr');
+  mainTr.innerHTML = `
+    <td>${regionNames[lr]}</td>
+    <td class="highlight">${fmt(avgDAU)}</td>
+    <td class="primary">${fmt(newDAU)}<br><span class="muted" style="font-size:11px">OM+Organic/天</span></td>
+    <td class="revival">${fmt(revTotal)}<br><span class="muted" style="font-size:11px">(${pct(revivalPct[lr]*100)} of DAU)</span></td>
+    <td class="om">${fmt(omTotal)}<br><span class="muted" style="font-size:11px">(${pct(omPctOfNew[lr]*(1-revivalPct[lr])*100)} of DAU)</span></td>
+    <td class="organic">${fmt(orgTotal)}<br><span class="muted" style="font-size:11px">(${pct((1-omPctOfNew[lr])*(1-revivalPct[lr])*100)} of DAU)</span></td>
+    <td class="primary">${fmt(totalInstalls[lr])}</td>
+    <td class="revival">${revivalRate}<br><span class="muted" style="font-size:11px">基于v2存量${fmt(v2.revivalPool)}</span></td>
+    <td><button class="expand-btn" onclick="toggleDetail(this,'detail-${lr}')">▶ 历史参考</button></td>
+  `;
+  tbody.appendChild(mainTr);
+
+  const detailTr = document.createElement('tr');
+  detailTr.className = 'detail-row';
+  detailTr.id = `detail-${lr}`;
+  detailTr.innerHTML = `
+    <td class="detail-cell" colspan="8">
+      <div class="detail-grid">
+        <div class="detail-box">
+          <div class="db-title">📦 历史版本2 新设备构成${v2.note?'（'+v2.note+'）':''}</div>
+          <div class="detail-row-item"><span class="lbl">OM买量</span><span class="val om">${fmt(v2.om)} (${pct(v2.omPct)})</span></div>
+          <div class="detail-row-item"><span class="lbl">Organic自然</span><span class="val organic">${fmt(v2.org)} (${pct(v2.orgPct)})</span></div>
+          <div class="detail-row-item"><span class="lbl">总新设备</span><span class="val primary">${fmt(v2.total)}</span></div>
+        </div>
+        <div class="detail-box">
+          <div class="db-title">🔄 回流假设依据</div>
+          <div class="detail-row-item"><span class="lbl">v2历史存量（可回流池）</span><span class="val">${fmt(v2.revivalPool)}</span></div>
+          <div class="detail-row-item"><span class="lbl">新版本均DAU回流</span><span class="val revival">${fmt(revDAU)}/天</span></div>
+          <div class="detail-row-item"><span class="lbl">回流占均DAU</span><span class="val revival">${pct(revivalPct[lr]*100)}</span></div>
+          <div class="detail-row-item"><span class="lbl">回流率（vs 存量）</span><span class="val revival">${revivalRate}</span></div>
+        </div>
+        <div class="detail-box">
+          <div class="db-title">📊 新版本新增用户构成</div>
+          <div class="detail-row-item"><span class="lbl">OM比例（参考v2）</span><span class="val om">${pct(v2.omPct)}</span></div>
+          <div class="detail-row-item"><span class="lbl">OM均DAU</span><span class="val om">${fmt(omDAU)}/天</span></div>
+          <div class="detail-row-item"><span class="lbl">Organic均DAU</span><span class="val organic">${fmt(orgDAU)}/天</span></div>
+          <div class="detail-row-item"><span class="lbl">总新增均DAU</span><span class="val primary">${fmt(newDAU)}/天</span></div>
+        </div>
+      </div>
+    </td>
+  `;
+  tbody.appendChild(detailTr);
+});
+
+function toggleDetail(btn, id) {
+  const row = document.getElementById(id);
+  const isOpen = row.classList.toggle('open');
+  btn.textContent = isOpen ? '▼ 历史参考' : '▶ 历史参考';
+}
+
+// ===== 图表1：构成堆叠 =====
+const compRevival=[], compOM=[], compOrganic=[];
+regions.forEach(lr=>{
+  const avg=targetAvgDAU[lr], rev=avg*revivalPct[lr], newU=avg*(1-revivalPct[lr]);
+  compRevival.push(Math.round(rev));
+  compOM.push(Math.round(newU*omPctOfNew[lr]));
+  compOrganic.push(Math.round(newU*(1-omPctOfNew[lr])));
+});
+
+new Chart(document.getElementById('compositionChart'),{
+  type:'bar',
+  data:{
+    labels:regions,
+    datasets:[
+      {label:'回流用户',data:compRevival,backgroundColor:'#f59e0b'},
+      {label:'OM买量新增',data:compOM,backgroundColor:'#10b981'},
+      {label:'Organic新增',data:compOrganic,backgroundColor:'#6366f1'},
+    ]
+  },
+  options:{
+    indexAxis:'y',responsive:true,
+    plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString()}`}}},
+    scales:{
+      x:{stacked:true,ticks:{color:'#64748b',callback:v=>(v/1000)+'K'},grid:{color:'#1a2030'}},
+      y:{stacked:true,ticks:{color:'#94a3b8',font:{size:13,weight:'700'}},grid:{color:'#1a2030'}}
+    }
+  }
+});
+
+// ===== 图表2：历史OM/Organic =====
+new Chart(document.getElementById('histChart'),{
+  type:'bar',
+  data:{
+    labels:['ID v1','ID v2','SG v1','SG v2','US v1','US v2','BR v1','SAC v1','SAC v2'],
+    datasets:[
+      {label:'OM%',data:[33.1,65.2,60.7,51.0,28.6,54.8,27.2,39.8,66.1],backgroundColor:'#10b981'},
+      {label:'Organic%',data:[66.9,34.8,39.3,49.0,71.4,45.2,72.8,60.2,33.9],backgroundColor:'#6366f1'},
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{labels:{color:'#94a3b8'}}},
+    scales:{
+      x:{stacked:true,ticks:{color:'#64748b'},grid:{color:'#1a2030'}},
+      y:{stacked:true,max:100,ticks:{color:'#64748b',callback:v=>v+'%'},grid:{color:'#1a2030'}}
+    }
+  }
+});
+
+// ===== 图表3：DAU走势 =====
+const dayLabels=Array.from({length:30},(_,i)=>'D'+(i+1));
+new Chart(document.getElementById('dauChart'),{
+  type:'line',
+  data:{
+    labels:dayLabels,
+    datasets:regions.map(lr=>({
+      label:lr,
+      data:allData[lr].map(d=>d.totalDAU),
+      borderColor:regionColors[lr],
+      backgroundColor:regionColors[lr]+'18',
+      fill:false,tension:0.3,borderWidth:2,pointRadius:2,
+    }))
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{labels:{color:'#94a3b8'}}},
+    scales:{
+      x:{ticks:{color:'#64748b'},grid:{color:'#1a2030'}},
+      y:{ticks:{color:'#64748b',callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'#1a2030'}}
+    }
+  }
+});
+
+// ===== 逐日明细：按区域标签页 =====
+const tabBar = document.getElementById('tabBar');
+const panels = document.getElementById('dailyPanels');
+const highlights=[1,5,7,14,30];
+
+regions.forEach((lr,idx)=>{
+  // Tab button
+  const btn = document.createElement('button');
+  btn.className='tab-btn'+(idx===0?' active':'');
+  btn.style.borderColor = idx===0?regionColors[lr]:'';
+  btn.style.color = idx===0?regionColors[lr]:'';
+  btn.textContent = lr;
+  btn.onclick = ()=>switchTab(lr);
+  tabBar.appendChild(btn);
+
+  // Panel
+  const panel = document.createElement('div');
+  panel.className='daily-panel'+(idx===0?' active':'');
+  panel.id='panel-'+lr;
+
+  const header = document.createElement('div');
+  header.className='region-header';
+  header.innerHTML=`<span class="region-dot" style="background:${regionColors[lr]}"></span>${regionNames[lr]}`;
+  panel.appendChild(header);
+
+  const scroll = document.createElement('div');
+  scroll.style.overflowX='auto';
+  const table = document.createElement('table');
+  table.innerHTML=`
+    <thead>
+      <tr>
+        <th style="text-align:left">Day</th>
+        <th>日新增Install</th>
+        <th>OM Install</th>
+        <th>Organic Install</th>
+        <th>回流DAU</th>
+        <th>OM DAU</th>
+        <th>Organic DAU</th>
+        <th>新增DAU小计</th>
+        <th>总DAU</th>
+      </tr>
+    </thead>
+  `;
+  const tb = document.createElement('tbody');
+  allData[lr].forEach(d=>{
+    const tr = document.createElement('tr');
+    if(highlights.includes(d.day)) tr.className='hl';
+    tr.innerHTML=`
+      <td>D${d.day}</td>
+      <td>${d.install.toLocaleString()}</td>
+      <td class="om">${d.omInstall.toLocaleString()}</td>
+      <td class="organic">${d.orgInstall.toLocaleString()}</td>
+      <td class="revival">${d.revivalDAU.toLocaleString()}</td>
+      <td class="om">${d.omDAU.toLocaleString()}</td>
+      <td class="organic">${d.orgDAU.toLocaleString()}</td>
+      <td class="primary">${d.newDAU.toLocaleString()}</td>
+      <td><strong>${d.totalDAU.toLocaleString()}</strong></td>
+    `;
+    tb.appendChild(tr);
+  });
+  table.appendChild(tb);
+  scroll.appendChild(table);
+  panel.appendChild(scroll);
+  panels.appendChild(panel);
+});
+
+function switchTab(lr) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const r=regions[i];
+    b.classList.toggle('active',r===lr);
+    b.style.borderColor=r===lr?regionColors[r]:'';
+    b.style.color=r===lr?regionColors[r]:'';
+    b.style.background=r===lr?regionColors[r]+'22':'';
+  });
+  document.querySelectorAll('.daily-panel').forEach(p=>{
+    p.classList.toggle('active',p.id==='panel-'+lr);
+  });
+}
+</script>
+</body>
+</html>

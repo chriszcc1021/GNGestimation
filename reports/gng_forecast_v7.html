@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GNG 新版本首月预估 v7</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; }
+.header { background: linear-gradient(135deg, #1a1f2e 0%, #252d3d 100%); padding: 28px 40px; border-bottom: 1px solid #2d3748; }
+.header h1 { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.header .subtitle { color: #94a3b8; font-size: 13px; }
+.badge { display: inline-block; background: #3b82f6; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 10px; vertical-align: middle; }
+.content { max-width: 1400px; margin: 0 auto; padding: 28px 24px; }
+.section-title { font-size: 18px; font-weight: 700; color: #f1f5f9; margin: 36px 0 14px 0; padding-left: 12px; border-left: 4px solid #3b82f6; }
+.note { background: #1a2030; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; font-size: 13px; color: #94a3b8; line-height: 1.7; }
+.note strong { color: #f59e0b; }
+
+.summary-wrap { background: #1e2535; border: 1px solid #2d3748; border-radius: 12px; overflow: hidden; margin-bottom: 32px; overflow-x: auto; }
+.summary-wrap table { width: 100%; border-collapse: collapse; min-width: 900px; }
+.summary-wrap th { background: #1a2030; padding: 10px 13px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; text-align: right; border-bottom: 2px solid #2d3748; white-space: nowrap; }
+.summary-wrap th:first-child { text-align: left; }
+.summary-wrap td { padding: 11px 13px; font-size: 13px; border-bottom: 1px solid #1a2030; text-align: right; vertical-align: middle; }
+.summary-wrap td:first-child { text-align: left; font-weight: 700; color: #f1f5f9; }
+.summary-wrap tr.sub-row td { font-size: 12px; color: #94a3b8; border-bottom: 1px solid #0f1117; }
+.summary-wrap tr.sub-row td:first-child { padding-left: 26px; font-weight: 400; color: #94a3b8; }
+.summary-wrap tr.data-row:hover > td { background: #252d3d; }
+.summary-wrap tr.sub-row { display: none; }
+.summary-wrap tr.sub-row.open { display: table-row; }
+.summary-wrap tr.sub-row:hover td { background: #1a2535; }
+
+.expand-btn { background: none; border: 1px solid #334155; color: #64748b; padding: 3px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.expand-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+.detail-row { display: none; }
+.detail-row.open { display: table-row; }
+.detail-cell { background: #141924 !important; padding: 16px 20px !important; border-bottom: 2px solid #2d3748 !important; }
+.detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.detail-box { background: #1e2535; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 14px; }
+.detail-box .db-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
+.dri { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+.dri .lbl { color: #64748b; }
+.dri .val { font-weight: 600; }
+
+.c-revival { color: #f59e0b; }
+.c-om { color: #10b981; }
+.c-organic { color: #6366f1; }
+.c-primary { color: #3b82f6; }
+.c-muted { color: #64748b; font-size: 11px; }
+.c-white { color: #fff; font-weight: 800; }
+
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+.chart-box { background: #1e2535; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; }
+.chart-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: #f1f5f9; }
+.chart-box .sub { font-size: 11px; color: #64748b; margin-bottom: 12px; }
+.chart-box canvas { max-height: 280px; }
+.chart-full { grid-column: 1 / -1; }
+
+.tab-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab-btn { padding: 6px 16px; border-radius: 8px; border: 1px solid #2d3748; background: #1e2535; color: #94a3b8; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+
+.daily-wrap { background: #1e2535; border: 1px solid #2d3748; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+.daily-panel { display: none; overflow-x: auto; }
+.daily-panel.active { display: block; }
+.daily-wrap table { width: 100%; border-collapse: collapse; min-width: 620px; }
+.daily-wrap th { background: #1a2030; padding: 9px 12px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; text-align: right; border-bottom: 1px solid #2d3748; white-space: nowrap; }
+.daily-wrap th:first-child { text-align: left; }
+.daily-wrap td { padding: 8px 12px; font-size: 12px; border-bottom: 1px solid #141924; text-align: right; }
+.daily-wrap td:first-child { text-align: left; font-weight: 600; color: #94a3b8; }
+.daily-wrap tr.hl td { background: #252d3d; }
+.daily-wrap tr:last-child td { border-bottom: none; }
+.region-header { padding: 10px 16px; background: #252d3d; font-size: 13px; font-weight: 700; color: #f1f5f9; border-bottom: 1px solid #2d3748; display: flex; align-items: center; gap: 10px; }
+.rdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>GNG 新版本首月预估 <span class="badge">v7</span></h1>
+  <div class="subtitle">2026-04-08 | 区域：ID · VN · MY · TH · US · BR · SAC | 回流计为Install，通过留存曲线贡献DAU</div>
+</div>
+<div class="content">
+
+  <div class="note">
+    <strong>模型逻辑：</strong> 总Install = 回流 + OM + Organic，三类均通过留存曲线贡献DAU。
+    SG Lock Region拆分为VN/MY/TH（按v2历史存量比例：VN 84.6% / MY 8.2% / TH 7.2%），各子区OM/Organic比例使用v2历史真实数据（VN: OM 67.4%；MY: OM 2.2%；TH: OM 4.4%）。
+    趋势图合并所有区域，仅展示总Install和总DAU与版本2历史对比。
+  </div>
+
+  <div class="section-title">🚀 新版本首月预估汇总</div>
+  <div class="summary-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>区域</th><th>首月均DAU</th><th>日均Install</th>
+          <th>月总Install</th><th>回流Install</th><th>OM Install</th><th>Organic Install</th>
+          <th>回流占比</th><th>历史参考</th>
+        </tr>
+      </thead>
+      <tbody id="summaryBody"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title">📈 数据可视化</div>
+  <div class="chart-grid">
+    <div class="chart-box chart-full">
+      <h3>首月 Install 走势：新版预估 vs 版本2历史（所有区域合并）</h3>
+      <div class="sub">实线 = 新版预估 | 虚线 = 版本2历史（2025-09-08开服头30天）</div>
+      <canvas id="installTrend"></canvas>
+    </div>
+    <div class="chart-box chart-full">
+      <h3>首月 DAU 走势：新版预估 vs 版本2历史（所有区域合并）</h3>
+      <div class="sub">实线 = 新版预估 | 虚线 = 版本2历史</div>
+      <canvas id="dauTrend"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>各区月总Install构成</h3>
+      <canvas id="installComp"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>历史各版本 OM / Organic 比例</h3>
+      <canvas id="histChart"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">📋 逐日明细（按区域）</div>
+  <div class="tab-bar" id="tabBar"></div>
+  <div class="daily-wrap"><div id="dailyPanels"></div></div>
+
+</div>
+<script>
+// ===== 区域配置 =====
+const allRegions = ['ID','VN','MY','TH','US','BR','SAC'];
+const regionNames = {
+  ID:'ID（印尼）',VN:'VN（越南）',MY:'MY（马来）',TH:'TH（泰国）',
+  US:'US（北美/MX）',BR:'BR（巴西）',SAC:'SAC（南美）'
+};
+const regionColors = {
+  ID:'#3b82f6',VN:'#06b6d4',MY:'#22d3ee',TH:'#67e8f9',
+  US:'#f59e0b',BR:'#f43f5e',SAC:'#a855f7'
+};
+
+// 目标均DAU（VN/MY/TH按存量比例分SG的20000）
+const targetAvgDAU = {ID:35000,VN:16917,MY:1649,TH:1434,US:15000,BR:9000,SAC:10000};
+const revivalPct   = {ID:0.30,VN:0.20,MY:0.20,TH:0.20,US:0.35,BR:0.25,SAC:0.10};
+// OM占新增比例（VN/MY/TH用真实历史数据）
+const omPctOfNew   = {ID:0.652,VN:0.674,MY:0.022,TH:0.044,US:0.548,BR:0.272,SAC:0.661};
+
+// 历史参考
+const v2ref = {
+  ID: {om:266263,org:141993,total:408256,omPct:65.2,orgPct:34.8,pool:409087,note:''},
+  VN: {om:55613, org:26927, total:82540, omPct:67.4,orgPct:32.6,pool:82540, note:''},
+  MY: {om:174,   org:7870,  total:8044,  omPct:2.2, orgPct:97.8,pool:8044,  note:''},
+  TH: {om:311,   org:6685,  total:6996,  omPct:4.4, orgPct:95.6,pool:6996,  note:''},
+  US: {om:72296, org:59690, total:131986,omPct:54.8,orgPct:45.2,pool:116256,note:''},
+  BR: {om:32592, org:87170, total:119762,omPct:27.2,orgPct:72.8,pool:119762,note:'基于版本1（v2无BR）'},
+  SAC:{om:90745, org:46513, total:137258,omPct:66.1,orgPct:33.9,pool:137258,note:''},
+};
+
+// 版本2历史头30天（VN/MY/TH单独数据）
+const v2hist = {
+  VN:{install:[0,382,422,189,161,182,202,116,109,111,98,99,105,102,62,58,63,63,65,77,105,77,65,43,55,58,70,88,55,40],dau:[0,382,586,476,438,457,491,427,401,392,375,368,371,368,328,308,302,298,297,308,341,328,315,289,290,291,303,326,305,284]},
+  MY:{install:[0,200,373,202,181,145,165,153,130,104,103,83,97,91,58,69,62,46,59,63,58,45,40,49,50,42,54,59,30,46],dau:[0,200,459,417,412,391,412,414,399,372,362,338,342,336,301,297,287,266,269,273,269,255,244,248,249,241,250,259,234,241]},
+  TH:{install:[0,112,175,114,78,88,64,78,65,52,55,69,61,43,53,42,36,33,32,31,29,31,30,31,42,37,35,43,57,42],dau:[0,112,223,220,199,209,193,204,198,185,184,197,196,179,183,173,164,157,153,149,145,145,144,144,156,156,155,164,182,176]},
+};
+// 版本2历史ID/US/SAC（无BR）头30天
+const v2histOther = {
+  ID:{install:[1,4761,8826,8671,9014,10158,8914,6601,7293,9230,8451,7809,8667,9055,6754,6193,5769,5498,6010,7241,7149,5259,4925,4352,4179,4301,4843,5005,3594,3680],dau:[1,4761,10874,13776,16169,19081,19764,18450,19102,21564,22106,22128,23343,24507,23015,22157,21493,20995,21328,22732,23335,21922,21199,20358,19827,19687,20136,20491,19297,18962]},
+  US:{install:[135,2267,2702,4210,3944,3762,3562,2473,3110,2611,2047,1639,1791,1791,1270,978,1102,1155,1905,2634,3011,2034,1145,1164,1015,1110,897,757,526,447],dau:[135,2325,3714,6024,6996,7588,7949,7266,7811,7627,7103,6545,6472,6417,5868,5348,5218,5166,5868,6889,7772,7313,6396,6091,5782,5715,5439,5162,4782,4501]},
+  SAC:{install:[115,1562,1613,4816,4833,4942,4821,3201,4381,4503,3733,3258,3221,3186,2128,1466,1765,1641,2025,2576,3644,2185,1298,1205,1083,1191,769,721,522,426],dau:[115,1611,2316,5963,7695,8965,9798,8904,10013,10745,10496,10130,10064,10069,9074,8045,7869,7585,7805,8418,9766,8961,7907,7407,7019,6902,6375,6065,5671,5345]},
+};
+const v2histAll = Object.assign({}, v2hist, v2histOther);
+
+// 版本2合并总计（头30天）
+const v2TotalInst = Array(30).fill(0);
+const v2TotalDAU  = Array(30).fill(0);
+Object.values(v2histAll).forEach(h=>{
+  h.install.forEach((v,i)=>v2TotalInst[i]+=v);
+  h.dau.forEach((v,i)=>v2TotalDAU[i]+=v);
+});
+
+// ===== 留存 & 节奏 =====
+function getRetention(day){
+  const n=[[1,1],[2,.43],[3,.275],[7,.124],[14,.062],[30,.043]];
+  if(day<=1)return 1;
+  for(let i=0;i<n.length-1;i++){
+    const[d1,r1]=n[i],[d2,r2]=n[i+1];
+    if(day>=d1&&day<=d2){const t=(Math.log(day)-Math.log(d1))/(Math.log(d2)-Math.log(d1));return r1*(r2/r1)**t;}
+  }
+  return .043;
+}
+function nf(d){return d<=7?.6/7:d<=14?.25/7:.15/16;}
+function rf(d){return d===1?.35:d===2?.25:d===3?.15:d<=7?.05/4:d<=14?.15/7:.05/16;}
+function norm(a){const s=a.reduce((x,y)=>x+y,0);return a.map(v=>v/s);}
+
+function computeRegion(avgDAU,rp,omP){
+  const NF=norm(Array.from({length:30},(_,i)=>nf(i+1)));
+  const RF=norm(Array.from({length:30},(_,i)=>rf(i+1)));
+  let C=0;
+  for(let t=1;t<=30;t++){let d=0;for(let k=1;k<=t;k++)d+=((1-rp)*NF[k-1]+rp*RF[k-1])*getRetention(t-k+1);C+=d;}
+  C/=30;
+  const tI=avgDAU/C,rI=tI*rp,nI=tI*(1-rp),oI=nI*omP,gI=nI*(1-omP);
+  const daily=[];
+  for(let t=1;t<=30;t++){
+    const rD=rI*RF[t-1],oD=oI*NF[t-1],gD=gI*NF[t-1];
+    let d=0;for(let k=1;k<=t;k++)d+=(rI*RF[k-1]+oI*NF[k-1]+gI*NF[k-1])*getRetention(t-k+1);
+    daily.push({day:t,totalInst:Math.round(rD+oD+gD),revInst:Math.round(rD),omInst:Math.round(oD),orgInst:Math.round(gD),dau:Math.round(d)});
+  }
+  return {tI,rI,oI,gI,daily};
+}
+
+const computed={};
+allRegions.forEach(lr=>{computed[lr]=computeRegion(targetAvgDAU[lr],revivalPct[lr],omPctOfNew[lr]);});
+
+// 新版预估合并总计
+const newTotalInst=Array(30).fill(0),newTotalDAU=Array(30).fill(0);
+allRegions.forEach(lr=>{computed[lr].daily.forEach((d,i)=>{newTotalInst[i]+=d.totalInst;newTotalDAU[i]+=d.dau;});});
+
+// ===== 汇总表 =====
+const fmt=n=>Math.round(n).toLocaleString();
+const pct=n=>n.toFixed(1)+'%';
+
+const tbody=document.getElementById('summaryBody');
+const displayRows=[
+  {lr:'ID'},
+  {lr:'VN'},
+  {lr:'MY'},
+  {lr:'TH'},
+  {lr:'US'},
+  {lr:'BR'},
+  {lr:'SAC'},
+];
+
+displayRows.forEach(item=>{
+  const lr=item.lr;
+  const c=item.isSgParent?null:computed[lr];
+  const ref=v2ref[lr]||{};
+
+  if(item.isSgParent){
+    return; // removed
+  }
+
+  const tr=document.createElement('tr');
+  tr.className='data-row';
+  const pool=ref.pool||0;
+  const rp=revivalPct[lr];
+  const revRate=pool?(c.rI/pool*100).toFixed(1)+'%':'—';
+  const expandBtn=item.isSub
+    ? `<button class="expand-btn" onclick="toggleDetail(this,'det-${lr}')">▶ v2历史</button>`
+    : `<button class="expand-btn" onclick="toggleDetail(this,'det-${lr}')">▶ v2历史</button>`;
+
+  tr.innerHTML=`
+    <td>${regionNames[lr]}</td>
+    <td class="c-white">${fmt(targetAvgDAU[lr])}</td>
+    <td class="c-primary">${fmt(c.tI/30)}</td>
+    <td>${fmt(c.tI)}</td>
+    <td class="c-revival">${fmt(c.rI)}</td>
+    <td class="c-om">${fmt(c.oI)}</td>
+    <td class="c-organic">${fmt(c.gI)}</td>
+    <td class="c-revival">${pct(rp*100)}<br><span class="c-muted">vs存量: ${revRate}</span></td>
+    <td>${expandBtn}</td>
+  `;
+  tbody.appendChild(tr);
+
+  // detail row
+  const detTr=document.createElement('tr');
+  detTr.className='detail-row';
+  detTr.id='det-'+lr;
+  const v2h=v2hist[lr]||v2histOther[lr];
+  const v2avgDAU=v2h?Math.round(v2h.dau.reduce((a,b)=>a+b,0)/30):0;
+  const v2peakDAU=v2h?Math.max(...v2h.dau):0;
+  detTr.innerHTML=`
+    <td class="detail-cell" colspan="9">
+      <div class="detail-grid">
+        <div class="detail-box">
+          <div class="db-title">📦 v2历史 新设备构成${ref.note?' ('+ref.note+')':''}</div>
+          <div class="dri"><span class="lbl">OM买量</span><span class="val c-om">${fmt(ref.om||0)} (${pct(ref.omPct||0)})</span></div>
+          <div class="dri"><span class="lbl">Organic自然</span><span class="val c-organic">${fmt(ref.org||0)} (${pct(ref.orgPct||0)})</span></div>
+          <div class="dri"><span class="lbl">全期总新设备</span><span class="val c-primary">${fmt(ref.total||0)}</span></div>
+        </div>
+        <div class="detail-box">
+          <div class="db-title">🔄 回流假设</div>
+          <div class="dri"><span class="lbl">v2可回流存量</span><span class="val">${pool?fmt(pool):'—'}</span></div>
+          <div class="dri"><span class="lbl">新版回流Install</span><span class="val c-revival">${fmt(c.rI)}</span></div>
+          <div class="dri"><span class="lbl">回流率（vs存量）</span><span class="val c-revival">${revRate}</span></div>
+        </div>
+        <div class="detail-box">
+          <div class="db-title">📊 v2开服头30天表现</div>
+          <div class="dri"><span class="lbl">均DAU</span><span class="val">${fmt(v2avgDAU)}</span></div>
+          <div class="dri"><span class="lbl">峰值DAU</span><span class="val">${fmt(v2peakDAU)}</span></div>
+          <div class="dri"><span class="lbl">新版目标均DAU</span><span class="val c-primary">${fmt(targetAvgDAU[lr])}</span></div>
+          <div class="dri"><span class="lbl">倍数</span><span class="val c-primary">${v2avgDAU?(targetAvgDAU[lr]/v2avgDAU).toFixed(1)+'x':'—'}</span></div>
+        </div>
+      </div>
+    </td>
+  `;
+  tbody.appendChild(detTr);
+});
+
+function toggleDetail(btn,id){
+  const row=document.getElementById(id);
+  const open=row.classList.toggle('open');
+  btn.textContent=open?'▼ v2历史':'▶ v2历史';
+}
+function toggleSubs(btn){
+  const subs=document.querySelectorAll('tr.sub-row');
+  const isOpen=btn.textContent.startsWith('▼');
+  subs.forEach(r=>r.classList.toggle('open',!isOpen));
+  btn.textContent=isOpen?'▶ VN/MY/TH':'▼ VN/MY/TH';
+}
+
+// ===== 图表1: Install趋势 =====
+const dayLabels=Array.from({length:30},(_,i)=>'D'+(i+1));
+new Chart(document.getElementById('installTrend'),{
+  type:'line',
+  data:{labels:dayLabels,datasets:[
+    {label:'新版预估 Install',data:newTotalInst,borderColor:'#3b82f6',backgroundColor:'#3b82f618',fill:true,tension:0.3,borderWidth:2.5,pointRadius:2},
+    {label:'版本2历史 Install',data:v2TotalInst,borderColor:'#94a3b8',backgroundColor:'transparent',fill:false,tension:0.3,borderWidth:1.5,pointRadius:1,borderDash:[6,4]},
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString()}`}}},
+    scales:{x:{ticks:{color:'#64748b'},grid:{color:'#1a2030'}},y:{ticks:{color:'#64748b',callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'#1a2030'}}}}
+});
+
+// ===== 图表2: DAU趋势 =====
+new Chart(document.getElementById('dauTrend'),{
+  type:'line',
+  data:{labels:dayLabels,datasets:[
+    {label:'新版预估 DAU',data:newTotalDAU,borderColor:'#10b981',backgroundColor:'#10b98118',fill:true,tension:0.3,borderWidth:2.5,pointRadius:2},
+    {label:'版本2历史 DAU',data:v2TotalDAU,borderColor:'#94a3b8',backgroundColor:'transparent',fill:false,tension:0.3,borderWidth:1.5,pointRadius:1,borderDash:[6,4]},
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString()}`}}},
+    scales:{x:{ticks:{color:'#64748b'},grid:{color:'#1a2030'}},y:{ticks:{color:'#64748b',callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'#1a2030'}}}}
+});
+
+// ===== 图表3: Install构成 =====
+new Chart(document.getElementById('installComp'),{
+  type:'bar',
+  data:{labels:allRegions,datasets:[
+    {label:'回流',data:allRegions.map(lr=>Math.round(computed[lr].rI)),backgroundColor:'#f59e0b'},
+    {label:'OM',data:allRegions.map(lr=>Math.round(computed[lr].oI)),backgroundColor:'#10b981'},
+    {label:'Organic',data:allRegions.map(lr=>Math.round(computed[lr].gI)),backgroundColor:'#6366f1'},
+  ]},
+  options:{indexAxis:'y',responsive:true,
+    plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString()}`}}},
+    scales:{x:{stacked:true,ticks:{color:'#64748b',callback:v=>(v/1000)+'K'},grid:{color:'#1a2030'}},
+            y:{stacked:true,ticks:{color:'#94a3b8',font:{size:12,weight:'700'}},grid:{color:'#1a2030'}}}}
+});
+
+// ===== 图表4: 历史OM/Organic =====
+new Chart(document.getElementById('histChart'),{
+  type:'bar',
+  data:{
+    labels:['ID v1','ID v2','VN v2','MY v2','TH v2','US v1','US v2','BR v1','SAC v2'],
+    datasets:[
+      {label:'OM%',data:[33.1,65.2,67.4,2.2,4.4,28.6,54.8,27.2,66.1],backgroundColor:'#10b981'},
+      {label:'Organic%',data:[66.9,34.8,32.6,97.8,95.6,71.4,45.2,72.8,33.9],backgroundColor:'#6366f1'},
+    ]
+  },
+  options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8'}}},
+    scales:{x:{stacked:true,ticks:{color:'#64748b'},grid:{color:'#1a2030'}},
+            y:{stacked:true,max:100,ticks:{color:'#64748b',callback:v=>v+'%'},grid:{color:'#1a2030'}}}}
+});
+
+// ===== 逐日明细 =====
+const tabBar=document.getElementById('tabBar');
+const panelsEl=document.getElementById('dailyPanels');
+const hlDays=[1,5,7,14,30];
+
+allRegions.forEach((lr,idx)=>{
+  const col=regionColors[lr];
+  const btn=document.createElement('button');
+  btn.className='tab-btn'+(idx===0?' active':'');
+  btn.textContent=lr;
+  if(idx===0)btn.style.cssText=`border-color:${col};color:${col};background:${col}22`;
+  btn.onclick=()=>switchTab(lr);
+  tabBar.appendChild(btn);
+
+  const panel=document.createElement('div');
+  panel.className='daily-panel'+(idx===0?' active':'');
+  panel.id='panel-'+lr;
+
+  const v2h=v2hist[lr]||v2histOther[lr];
+  const v2avgDAU=v2h?Math.round(v2h.dau.reduce((a,b)=>a+b,0)/30):0;
+
+  const hdr=document.createElement('div');
+  hdr.className='region-header';
+  hdr.innerHTML=`<span class="rdot" style="background:${col}"></span>${regionNames[lr]}`
+    +(v2avgDAU?`<span style="font-size:11px;color:#64748b;margin-left:auto;">v2历史均DAU: ${fmt(v2avgDAU)} → 新版目标: ${fmt(targetAvgDAU[lr])} (${(targetAvgDAU[lr]/v2avgDAU).toFixed(1)}x)</span>`:'');
+  panel.appendChild(hdr);
+
+  const scroll=document.createElement('div');
+  scroll.style.overflowX='auto';
+  const table=document.createElement('table');
+  const extraTh=v2h?'<th style="color:#475569">v2历史 Install</th><th style="color:#475569">v2历史 DAU</th>':'';
+  table.innerHTML=`<thead><tr>
+    <th style="text-align:left">Day</th>
+    <th class="c-revival">回流 Install</th><th class="c-om">OM Install</th><th class="c-organic">Organic Install</th>
+    <th class="c-primary">日总 Install</th><th>当日 DAU</th>${extraTh}
+  </tr></thead>`;
+  const tb=document.createElement('tbody');
+  computed[lr].daily.forEach((d,i)=>{
+    const tr=document.createElement('tr');
+    if(hlDays.includes(d.day))tr.className='hl';
+    const extraTd=v2h
+      ?`<td style="color:#475569">${v2h.install[i].toLocaleString()}</td><td style="color:#475569">${v2h.dau[i].toLocaleString()}</td>`:'';
+    tr.innerHTML=`<td>D${d.day}</td>
+      <td class="c-revival">${d.revInst.toLocaleString()}</td>
+      <td class="c-om">${d.omInst.toLocaleString()}</td>
+      <td class="c-organic">${d.orgInst.toLocaleString()}</td>
+      <td class="c-primary">${d.totalInst.toLocaleString()}</td>
+      <td><strong>${d.dau.toLocaleString()}</strong></td>${extraTd}`;
+    tb.appendChild(tr);
+  });
+  table.appendChild(tb);
+  scroll.appendChild(table);
+  panel.appendChild(scroll);
+  panelsEl.appendChild(panel);
+});
+
+function switchTab(lr){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const r=allRegions[i],active=r===lr,col=regionColors[r];
+    b.classList.toggle('active',active);
+    b.style.cssText=active?`border-color:${col};color:${col};background:${col}22`:'';
+  });
+  document.querySelectorAll('.daily-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+lr));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GNG 新版本首月DAU预估</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e0e0e0; padding: 20px; }
+  h1 { text-align: center; color: #fff; font-size: 22px; margin-bottom: 6px; }
+  .subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
+  
+  /* 汇总卡片 */
+  .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .card { background: #1e2130; border-radius: 10px; padding: 14px; border-left: 4px solid; }
+  .card.ID { border-color: #4e9af1; }
+  .card.SG { border-color: #f1c44e; }
+  .card.US { border-color: #4ef1a0; }
+  .card.BR { border-color: #f14e4e; }
+  .card.SAC { border-color: #c44ef1; }
+  .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .card.ID h3 { color: #4e9af1; }
+  .card.SG h3 { color: #f1c44e; }
+  .card.US h3 { color: #4ef1a0; }
+  .card.BR h3 { color: #f14e4e; }
+  .card.SAC h3 { color: #c44ef1; }
+  .card .metric { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
+  .card .metric .label { color: #888; }
+  .card .metric .value { font-weight: 600; color: #fff; }
+  .card .note { font-size: 11px; color: #666; margin-top: 6px; border-top: 1px solid #2a2d3e; padding-top: 6px; }
+
+  /* 图表区 */
+  .chart-section { background: #1e2130; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+  .chart-section h2 { font-size: 15px; color: #ccc; margin-bottom: 14px; }
+  .chart-wrapper { position: relative; height: 220px; }
+  canvas { width: 100% !important; }
+
+  /* Tab */
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab-btn { padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #2a2d3e; color: #888; transition: all 0.2s; }
+  .tab-btn.active { color: #fff; }
+  .tab-btn.ID.active { background: #4e9af1; }
+  .tab-btn.SG.active { background: #f1c44e; color: #000; }
+  .tab-btn.US.active { background: #4ef1a0; color: #000; }
+  .tab-btn.BR.active { background: #f14e4e; }
+  .tab-btn.SAC.active { background: #c44ef1; }
+
+  /* 表格 */
+  .table-section { background: #1e2130; border-radius: 10px; padding: 16px; }
+  .table-section h2 { font-size: 15px; color: #ccc; margin-bottom: 12px; }
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 700px; }
+  th { background: #2a2d3e; color: #aaa; padding: 8px 10px; text-align: right; font-weight: 600; white-space: nowrap; }
+  th:first-child { text-align: center; }
+  td { padding: 7px 10px; text-align: right; border-bottom: 1px solid #1a1d2e; }
+  td:first-child { text-align: center; font-weight: 700; color: #888; }
+  tr:hover td { background: #252838; }
+  tr.highlight td { background: #1a2a1a; }
+  .dau-cell { font-weight: 700; }
+  .revival-cell { color: #f1a44e; }
+  .organic-cell { color: #4ef1a0; }
+  .install-cell { color: #4e9af1; }
+  .pcu-cell { color: #c44ef1; }
+
+  /* 图例 */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #aaa; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* 假设说明 */
+  .assumptions { background: #1a1d2e; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 12px; color: #888; }
+  .assumptions h3 { color: #aaa; margin-bottom: 8px; font-size: 13px; }
+  .assumptions ul { padding-left: 16px; }
+  .assumptions li { margin-bottom: 4px; }
+  .assumptions span { color: #f1a44e; }
+</style>
+</head>
+<body>
+
+<h1>🎮 GNG 新版本首月DAU预估</h1>
+<p class="subtitle">基于历史版本留存数据建模 · 首月30天逐日拆解</p>
+
+<!-- 假设说明 -->
+<div class="assumptions">
+  <h3>📋 计算假设</h3>
+  <ul>
+    <li>留存曲线参考GNG历史数据：<span>D2=43%，D3=27.5%，D7=12.4%，D14=6.2%，D30=4.3%</span></li>
+    <li>推广分布：前7天集中60%新增（参考版本2开服节奏），之后自然衰减</li>
+    <li>回流用户比例：<span>ID=20%，SG=15%，US=25%，BR=20%，SAC=5%</span>（参考停服前体量）</li>
+    <li>PCU/DAU比例：按各区目标值固定比例（ID=14.7%，SG=16.7%，US=16.7%，BR=16.7%，SAC=16.7%）</li>
+    <li>首月平均DAU = 目标值，D1~D7高于均值，D15后低于均值（自然衰减曲线）</li>
+  </ul>
+</div>
+
+<!-- 汇总卡片 -->
+<div class="summary-grid" id="summaryCards"></div>
+
+<!-- 图表 -->
+<div class="chart-section">
+  <h2>📈 各区30天DAU走势</h2>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4e9af1"></div>ID（印尼）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f1c44e"></div>SG（东南亚）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4ef1a0"></div>US（北美/MX）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f14e4e"></div>BR（巴西）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#c44ef1"></div>SAC（南美）</div>
+  </div>
+  <div class="chart-wrapper">
+    <canvas id="dauChart"></canvas>
+  </div>
+</div>
+
+<!-- 用户构成图 -->
+<div class="chart-section">
+  <h2>👥 用户构成（回流 vs 新进）· 全区合计</h2>
+  <div class="chart-wrapper">
+    <canvas id="compositionChart"></canvas>
+  </div>
+</div>
+
+<!-- 逐日明细表 -->
+<div class="table-section">
+  <h2>📊 逐日明细</h2>
+  <div class="tabs" id="tabButtons"></div>
+  <div class="table-wrapper">
+    <table id="detailTable">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th class="dau-cell">DAU</th>
+          <th class="pcu-cell">PCU</th>
+          <th class="install-cell">当日新增Install</th>
+          <th class="revival-cell">回流用户（DAU）</th>
+          <th class="organic-cell">新进用户（DAU）</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const data = {"ID":{"target_dau":35000,"total_installs":309759,"daily":[{"day":1,"dau":36102,"pcu":5309,"new_install":36102,"revival":7220,"organic_new":28882},{"day":2,"dau":48016,"pcu":7061,"new_install":32492,"revival":9603,"organic_new":38413},{"day":3,"dau":52782,"pcu":7762,"new_install":28882,"revival":10556,"organic_new":42225},{"day":4,"dau":54762,"pcu":8053,"new_install":25272,"revival":10952,"organic_new":43810},{"day":5,"dau":58070,"pcu":8540,"new_install":25272,"revival":11614,"organic_new":46456},{"day":6,"dau":57450,"pcu":8448,"new_install":21661,"revival":11490,"organic_new":45960},{"day":7,"dau":52932,"pcu":7784,"new_install":16246,"revival":10586,"organic_new":42346},{"day":8,"dau":48394,"pcu":7117,"new_install":12636,"revival":9679,"organic_new":38716},{"day":9,"dau":45007,"pcu":6619,"new_install":10831,"revival":9001,"organic_new":36006},{"day":10,"dau":41652,"pcu":6125,"new_install":9026,"revival":8330,"organic_new":33321},{"day":11,"dau":38121,"pcu":5606,"new_install":7220,"revival":7624,"organic_new":30497},{"day":12,"dau":36236,"pcu":5329,"new_install":7220,"revival":7247,"organic_new":28989},{"day":13,"dau":34940,"pcu":5138,"new_install":7220,"revival":6988,"organic_new":27952},{"day":14,"dau":33199,"pcu":4882,"new_install":6498,"revival":6640,"organic_new":26559},{"day":15,"dau":31130,"pcu":4578,"new_install":5415,"revival":6226,"organic_new":24904},{"day":16,"dau":30047,"pcu":4419,"new_install":5415,"revival":6009,"organic_new":24038},{"day":17,"dau":29353,"pcu":4317,"new_install":5415,"revival":5871,"organic_new":23482},{"day":18,"dau":28866,"pcu":4245,"new_install":5415,"revival":5773,"organic_new":23093},{"day":19,"dau":27475,"pcu":4040,"new_install":4332,"revival":5495,"organic_new":21980},{"day":20,"dau":26839,"pcu":3947,"new_install":4332,"revival":5368,"organic_new":21471},{"day":21,"dau":26458,"pcu":3891,"new_install":4332,"revival":5292,"organic_new":21166},{"day":22,"dau":25455,"pcu":3743,"new_install":3610,"revival":5091,"organic_new":20364},{"day":23,"dau":24941,"pcu":3668,"new_install":3610,"revival":4988,"organic_new":19953},{"day":24,"dau":24596,"pcu":3617,"new_install":3610,"revival":4919,"organic_new":19677},{"day":25,"dau":24329,"pcu":3578,"new_install":3610,"revival":4866,"organic_new":19463},{"day":26,"dau":23391,"pcu":3440,"new_install":2888,"revival":4678,"organic_new":18712},{"day":27,"dau":22908,"pcu":3369,"new_install":2888,"revival":4582,"organic_new":18326},{"day":28,"dau":22572,"pcu":3319,"new_install":2888,"revival":4514,"organic_new":18057},{"day":29,"dau":22288,"pcu":3278,"new_install":2888,"revival":4458,"organic_new":17831},{"day":30,"dau":21688,"pcu":3189,"new_install":2527,"revival":4338,"organic_new":17350}]},"SG":{"target_dau":20000,"total_installs":177005,"daily":[{"day":1,"dau":20630,"pcu":3438,"new_install":20630,"revival":3094,"organic_new":17535},{"day":2,"dau":27438,"pcu":4573,"new_install":18567,"revival":4116,"organic_new":23322},{"day":3,"dau":30161,"pcu":5026,"new_install":16504,"revival":4524,"organic_new":25637},{"day":4,"dau":31293,"pcu":5215,"new_install":14441,"revival":4694,"organic_new":26599},{"day":5,"dau":33183,"pcu":5530,"new_install":14441,"revival":4977,"organic_new":28205},{"day":6,"dau":32828,"pcu":5471,"new_install":12378,"revival":4924,"organic_new":27904},{"day":7,"dau":30247,"pcu":5041,"new_install":9283,"revival":4537,"organic_new":25710},{"day":8,"dau":27654,"pcu":4609,"new_install":7220,"revival":4148,"organic_new":23506},{"day":9,"dau":25718,"pcu":4286,"new_install":6189,"revival":3858,"organic_new":21861},{"day":10,"dau":23801,"pcu":3966,"new_install":5157,"revival":3570,"organic_new":20231},{"day":11,"dau":21784,"pcu":3630,"new_install":4126,"revival":3268,"organic_new":18516},{"day":12,"dau":20706,"pcu":3451,"new_install":4126,"revival":3106,"organic_new":17600},{"day":13,"dau":19966,"pcu":3327,"new_install":4126,"revival":2995,"organic_new":16971},{"day":14,"dau":18971,"pcu":3162,"new_install":3713,"revival":2846,"organic_new":16125},{"day":15,"dau":17789,"pcu":2964,"new_install":3094,"revival":2668,"organic_new":15120},{"day":16,"dau":17170,"pcu":2861,"new_install":3094,"revival":2575,"organic_new":14594},{"day":17,"dau":16773,"pcu":2795,"new_install":3094,"revival":2516,"organic_new":14257},{"day":18,"dau":16495,"pcu":2749,"new_install":3094,"revival":2474,"organic_new":14021},{"day":19,"dau":15700,"pcu":2616,"new_install":2476,"revival":2355,"organic_new":13345},{"day":20,"dau":15337,"pcu":2556,"new_install":2476,"revival":2301,"organic_new":13036},{"day":21,"dau":15119,"pcu":2520,"new_install":2476,"revival":2268,"organic_new":12851},{"day":22,"dau":14546,"pcu":2424,"new_install":2063,"revival":2182,"organic_new":12364},{"day":23,"dau":14252,"pcu":2375,"new_install":2063,"revival":2138,"organic_new":12114},{"day":24,"dau":14055,"pcu":2342,"new_install":2063,"revival":2108,"organic_new":11947},{"day":25,"dau":13902,"pcu":2317,"new_install":2063,"revival":2085,"organic_new":11817},{"day":26,"dau":13366,"pcu":2227,"new_install":1650,"revival":2005,"organic_new":11361},{"day":27,"dau":13090,"pcu":2182,"new_install":1650,"revival":1964,"organic_new":11127},{"day":28,"dau":12898,"pcu":2149,"new_install":1650,"revival":1935,"organic_new":10963},{"day":29,"dau":12736,"pcu":2122,"new_install":1650,"revival":1910,"organic_new":10826},{"day":30,"dau":12393,"pcu":2065,"new_install":1444,"revival":1859,"organic_new":10534}]},"US":{"target_dau":15000,"total_installs":132754,"daily":[{"day":1,"dau":15472,"pcu":2579,"new_install":15472,"revival":3868,"organic_new":11604},{"day":2,"dau":20578,"pcu":3430,"new_install":13925,"revival":5145,"organic_new":15434},{"day":3,"dau":22621,"pcu":3770,"new_install":12378,"revival":5655,"organic_new":16966},{"day":4,"dau":23469,"pcu":3912,"new_install":10831,"revival":5867,"organic_new":17602},{"day":5,"dau":24887,"pcu":4148,"new_install":10831,"revival":6222,"organic_new":18665},{"day":6,"dau":24621,"pcu":4104,"new_install":9283,"revival":6155,"organic_new":18466},{"day":7,"dau":22685,"pcu":3781,"new_install":6963,"revival":5671,"organic_new":17014},{"day":8,"dau":20740,"pcu":3457,"new_install":5415,"revival":5185,"organic_new":15555},{"day":9,"dau":19289,"pcu":3215,"new_install":4642,"revival":4822,"organic_new":14467},{"day":10,"dau":17851,"pcu":2975,"new_install":3868,"revival":4463,"organic_new":13388},{"day":11,"dau":16338,"pcu":2723,"new_install":3094,"revival":4084,"organic_new":12253},{"day":12,"dau":15530,"pcu":2588,"new_install":3094,"revival":3882,"organic_new":11647},{"day":13,"dau":14974,"pcu":2496,"new_install":3094,"revival":3744,"organic_new":11231},{"day":14,"dau":14228,"pcu":2371,"new_install":2785,"revival":3557,"organic_new":10671},{"day":15,"dau":13342,"pcu":2224,"new_install":2321,"revival":3335,"organic_new":10006},{"day":16,"dau":12877,"pcu":2146,"new_install":2321,"revival":3219,"organic_new":9658},{"day":17,"dau":12580,"pcu":2097,"new_install":2321,"revival":3145,"organic_new":9435},{"day":18,"dau":12371,"pcu":2062,"new_install":2321,"revival":3093,"organic_new":9278},{"day":19,"dau":11775,"pcu":1963,"new_install":1857,"revival":2944,"organic_new":8831},{"day":20,"dau":11503,"pcu":1917,"new_install":1857,"revival":2876,"organic_new":8627},{"day":21,"dau":11339,"pcu":1890,"new_install":1857,"revival":2835,"organic_new":8504},{"day":22,"dau":10909,"pcu":1818,"new_install":1547,"revival":2727,"organic_new":8182},{"day":23,"dau":10689,"pcu":1781,"new_install":1547,"revival":2672,"organic_new":8017},{"day":24,"dau":10541,"pcu":1757,"new_install":1547,"revival":2635,"organic_new":7906},{"day":25,"dau":10427,"pcu":1738,"new_install":1547,"revival":2607,"organic_new":7820},{"day":26,"dau":10025,"pcu":1671,"new_install":1238,"revival":2506,"organic_new":7518},{"day":27,"dau":9818,"pcu":1636,"new_install":1238,"revival":2454,"organic_new":7363},{"day":28,"dau":9674,"pcu":1612,"new_install":1238,"revival":2418,"organic_new":7255},{"day":29,"dau":9552,"pcu":1592,"new_install":1238,"revival":2388,"organic_new":7164},{"day":30,"dau":9295,"pcu":1549,"new_install":1083,"revival":2324,"organic_new":6971}]},"BR":{"target_dau":9000,"total_installs":79652,"daily":[{"day":1,"dau":9283,"pcu":1547,"new_install":9283,"revival":1857,"organic_new":7427},{"day":2,"dau":12347,"pcu":2058,"new_install":8355,"revival":2469,"organic_new":9878},{"day":3,"dau":13572,"pcu":2262,"new_install":7427,"revival":2714,"organic_new":10858},{"day":4,"dau":14082,"pcu":2347,"new_install":6498,"revival":2816,"organic_new":11265},{"day":5,"dau":14932,"pcu":2489,"new_install":6498,"revival":2986,"organic_new":11946},{"day":6,"dau":14773,"pcu":2462,"new_install":5570,"revival":2955,"organic_new":11818},{"day":7,"dau":13611,"pcu":2269,"new_install":4178,"revival":2722,"organic_new":10889},{"day":8,"dau":12444,"pcu":2074,"new_install":3249,"revival":2489,"organic_new":9955},{"day":9,"dau":11573,"pcu":1929,"new_install":2785,"revival":2315,"organic_new":9259},{"day":10,"dau":10710,"pcu":1785,"new_install":2321,"revival":2142,"organic_new":8568},{"day":11,"dau":9803,"pcu":1634,"new_install":1857,"revival":1961,"organic_new":7842},{"day":12,"dau":9318,"pcu":1553,"new_install":1857,"revival":1864,"organic_new":7454},{"day":13,"dau":8985,"pcu":1497,"new_install":1857,"revival":1797,"organic_new":7188},{"day":14,"dau":8537,"pcu":1423,"new_install":1671,"revival":1707,"organic_new":6830},{"day":15,"dau":8005,"pcu":1334,"new_install":1393,"revival":1601,"organic_new":6404},{"day":16,"dau":7726,"pcu":1288,"new_install":1393,"revival":1545,"organic_new":6181},{"day":17,"dau":7548,"pcu":1258,"new_install":1393,"revival":1510,"organic_new":6038},{"day":18,"dau":7423,"pcu":1237,"new_install":1393,"revival":1485,"organic_new":5938},{"day":19,"dau":7065,"pcu":1178,"new_install":1114,"revival":1413,"organic_new":5652},{"day":20,"dau":6902,"pcu":1150,"new_install":1114,"revival":1380,"organic_new":5521},{"day":21,"dau":6803,"pcu":1134,"new_install":1114,"revival":1361,"organic_new":5443},{"day":22,"dau":6546,"pcu":1091,"new_install":928,"revival":1309,"organic_new":5236},{"day":23,"dau":6413,"pcu":1069,"new_install":928,"revival":1283,"organic_new":5131},{"day":24,"dau":6325,"pcu":1054,"new_install":928,"revival":1265,"organic_new":5060},{"day":25,"dau":6256,"pcu":1043,"new_install":928,"revival":1251,"organic_new":5005},{"day":26,"dau":6015,"pcu":1002,"new_install":743,"revival":1203,"organic_new":4812},{"day":27,"dau":5891,"pcu":982,"new_install":743,"revival":1178,"organic_new":4713},{"day":28,"dau":5804,"pcu":967,"new_install":743,"revival":1161,"organic_new":4643},{"day":29,"dau":5731,"pcu":955,"new_install":743,"revival":1146,"organic_new":4585},{"day":30,"dau":5577,"pcu":929,"new_install":650,"revival":1115,"organic_new":4462}]},"SAC":{"target_dau":10000,"total_installs":88503,"daily":[{"day":1,"dau":10315,"pcu":1720,"new_install":10315,"revival":516,"organic_new":9799},{"day":2,"dau":13719,"pcu":2287,"new_install":9283,"revival":686,"organic_new":13033},{"day":3,"dau":15081,"pcu":2514,"new_install":8252,"revival":754,"organic_new":14327},{"day":4,"dau":15646,"pcu":2608,"new_install":7220,"revival":782,"organic_new":14864},{"day":5,"dau":16591,"pcu":2766,"new_install":7220,"revival":830,"organic_new":15762},{"day":6,"dau":16414,"pcu":2736,"new_install":6189,"revival":821,"organic_new":15594},{"day":7,"dau":15123,"pcu":2521,"new_install":4642,"revival":756,"organic_new":14367},{"day":8,"dau":13827,"pcu":2305,"new_install":3610,"revival":691,"organic_new":13136},{"day":9,"dau":12859,"pcu":2144,"new_install":3094,"revival":643,"organic_new":12216},{"day":10,"dau":11900,"pcu":1984,"new_install":2579,"revival":595,"organic_new":11305},{"day":11,"dau":10892,"pcu":1816,"new_install":2063,"revival":545,"organic_new":10347},{"day":12,"dau":10353,"pcu":1726,"new_install":2063,"revival":518,"organic_new":9835},{"day":13,"dau":9983,"pcu":1664,"new_install":2063,"revival":499,"organic_new":9484},{"day":14,"dau":9485,"pcu":1581,"new_install":1857,"revival":474,"organic_new":9011},{"day":15,"dau":8894,"pcu":1483,"new_install":1547,"revival":445,"organic_new":8450},{"day":16,"dau":8585,"pcu":1431,"new_install":1547,"revival":429,"organic_new":8156},{"day":17,"dau":8386,"pcu":1398,"new_install":1547,"revival":419,"organic_new":7967},{"day":18,"dau":8247,"pcu":1375,"new_install":1547,"revival":412,"organic_new":7835},{"day":19,"dau":7850,"pcu":1309,"new_install":1238,"revival":393,"organic_new":7458},{"day":20,"dau":7668,"pcu":1278,"new_install":1238,"revival":383,"organic_new":7285},{"day":21,"dau":7559,"pcu":1260,"new_install":1238,"revival":378,"organic_new":7181},{"day":22,"dau":7273,"pcu":1212,"new_install":1031,"revival":364,"organic_new":6909},{"day":23,"dau":7126,"pcu":1188,"new_install":1031,"revival":356,"organic_new":6770},{"day":24,"dau":7028,"pcu":1171,"new_install":1031,"revival":351,"organic_new":6676},{"day":25,"dau":6951,"pcu":1159,"new_install":1031,"revival":348,"organic_new":6603},{"day":26,"dau":6683,"pcu":1114,"new_install":825,"revival":334,"organic_new":6349},{"day":27,"dau":6545,"pcu":1091,"new_install":825,"revival":327,"organic_new":6218},{"day":28,"dau":6449,"pcu":1075,"new_install":825,"revival":322,"organic_new":6127},{"day":29,"dau":6368,"pcu":1062,"new_install":825,"revival":318,"organic_new":6050},{"day":30,"dau":6197,"pcu":1033,"new_install":722,"revival":310,"organic_new":5887}]}};
+
+const colors = { ID: '#4e9af1', SG: '#f1c44e', US: '#4ef1a0', BR: '#f14e4e', SAC: '#c44ef1' };
+const regions = ['ID', 'SG', 'US', 'BR', 'SAC'];
+
+// 汇总卡片
+const summaryEl = document.getElementById('summaryCards');
+regions.forEach(r => {
+  const d = data[r];
+  const avg = Math.round(d.daily.reduce((s,x)=>s+x.dau,0)/30);
+  const totalInstall = d.total_installs;
+  const avgRevival = Math.round(d.daily.reduce((s,x)=>s+x.revival,0)/30);
+  const avgOrganic = Math.round(d.daily.reduce((s,x)=>s+x.organic_new,0)/30);
+  const peakDau = Math.max(...d.daily.map(x=>x.dau));
+  summaryEl.innerHTML += `
+    <div class="card ${r}">
+      <h3>${r} 服</h3>
+      <div class="metric"><span class="label">目标首月均DAU</span><span class="value">${d.target_dau.toLocaleString()}</span></div>
+      <div class="metric"><span class="label">首月总Install</span><span class="value">${totalInstall.toLocaleString()}</span></div>
+      <div class="metric"><span class="label">峰值DAU（D5）</span><span class="value">${peakDau.toLocaleString()}</span></div>
+      <div class="metric"><span class="label">均DAU回流</span><span class="value" style="color:#f1a44e">${avgRevival.toLocaleString()}</span></div>
+      <div class="metric"><span class="label">均DAU新进</span><span class="value" style="color:#4ef1a0">${avgOrganic.toLocaleString()}</span></div>
+      <div class="note">日均Install：${Math.round(totalInstall/30).toLocaleString()}</div>
+    </div>`;
+});
+
+// DAU走势图
+const days = Array.from({length:30},(_,i)=>i+1);
+const dauCtx = document.getElementById('dauChart').getContext('2d');
+new Chart(dauCtx, {
+  type: 'line',
+  data: {
+    labels: days,
+    datasets: regions.map(r => ({
+      label: r,
+      data: data[r].daily.map(d=>d.dau),
+      borderColor: colors[r],
+      backgroundColor: colors[r]+'22',
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.3,
+      fill: false
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#2a2d3e' }, ticks: { color: '#666' } },
+      y: { grid: { color: '#2a2d3e' }, ticks: { color: '#666', callback: v => v>=1000?v/1000+'k':v } }
+    }
+  }
+});
+
+// 用户构成图（全区合计）
+const compCtx = document.getElementById('compositionChart').getContext('2d');
+const totalRevival = days.map((_,i) => regions.reduce((s,r)=>s+data[r].daily[i].revival,0));
+const totalOrganic = days.map((_,i) => regions.reduce((s,r)=>s+data[r].daily[i].organic_new,0));
+new Chart(compCtx, {
+  type: 'bar',
+  data: {
+    labels: days,
+    datasets: [
+      { label: '回流用户', data: totalRevival, backgroundColor: '#f1a44e88', borderColor: '#f1a44e', borderWidth: 1 },
+      { label: '新进用户', data: totalOrganic, backgroundColor: '#4ef1a088', borderColor: '#4ef1a0', borderWidth: 1 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#aaa' } } },
+    scales: {
+      x: { stacked: true, grid: { color: '#2a2d3e' }, ticks: { color: '#666' } },
+      y: { stacked: true, grid: { color: '#2a2d3e' }, ticks: { color: '#666', callback: v => v>=1000?v/1000+'k':v } }
+    }
+  }
+});
+
+// Tab + 表格
+let currentRegion = 'ID';
+const tabEl = document.getElementById('tabButtons');
+const tbody = document.getElementById('tableBody');
+
+regions.forEach(r => {
+  const btn = document.createElement('button');
+  btn.className = `tab-btn ${r}${r===currentRegion?' active':''}`;
+  btn.textContent = r + '服';
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRegion = r;
+    renderTable(r);
+  };
+  tabEl.appendChild(btn);
+});
+
+function renderTable(r) {
+  const avg = data[r].target_dau;
+  tbody.innerHTML = data[r].daily.map(d => {
+    const nearTarget = Math.abs(d.dau - avg) / avg < 0.05;
+    return `<tr class="${nearTarget?'highlight':''}">
+      <td>D${d.day}</td>
+      <td class="dau-cell">${d.dau.toLocaleString()}</td>
+      <td class="pcu-cell">${d.pcu.toLocaleString()}</td>
+      <td class="install-cell">${d.new_install.toLocaleString()}</td>
+      <td class="revival-cell">${d.revival.toLocaleString()}</td>
+      <td class="organic-cell">${d.organic_new.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+}
+renderTable('ID');
+</script>
+</body>
+</html>
