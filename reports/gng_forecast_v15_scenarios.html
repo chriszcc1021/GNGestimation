@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GNG 新版本首月预估 v15</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+ --bg-primary: #07090e;
+ --bg-secondary: #0d1117;
+ --bg-card: #161b22;
+ --bg-elevated: #1c2333;
+ --border: #21262d;
+ --border-accent: #30363d;
+ --text-primary: #f0f6fc;
+ --text-secondary: #a0aab4;
+ --text-muted: #6b7280;
+ --accent: #ff6b35;
+ --accent-glow: rgba(255,107,53,0.15);
+ --blue: #58a6ff;
+ --green: #3fb950;
+ --purple: #bc8cff;
+ --yellow: #e3a008;
+ --red: #f85149;
+ --cyan: #39d2c0;
+ --font-display: 'Space Grotesk', sans-serif;
+ --font-body: 'Plus Jakarta Sans', sans-serif;
+ --font-mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body::before { content:''; position:fixed; inset:0; background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E") repeat; pointer-events:none; z-index:9999; }
+body::after { content:''; position:fixed; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(ellipse at 20% 50%,rgba(255,107,53,0.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(88,166,255,0.04) 0%,transparent 50%); pointer-events:none; z-index:-1; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.anim{opacity:0;animation:fadeUp .55s cubic-bezier(.16,1,.3,1) forwards}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}.d6{animation-delay:.3s}.d7{animation-delay:.35s}
+
+/* Header */
+.header { position:relative; padding:52px 52px 44px; border-bottom:1px solid var(--border); overflow:hidden; background:linear-gradient(180deg,rgba(255,107,53,0.04) 0%,transparent 100%); }
+.header::before { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:.5; }
+.header h1 { font-family:var(--font-display); font-size:40px; font-weight:800; letter-spacing:-.04em; color:var(--text-primary); margin-bottom:10px; line-height:1.1; }
+.header h1 .version { display:inline-flex; align-items:center; background:var(--accent); color:#fff; padding:4px 16px; border-radius:20px; font-size:14px; font-weight:700; margin-left:14px; vertical-align:middle; box-shadow:0 0 20px rgba(255,107,53,.35); }
+.header .meta { font-size:15px; color:var(--text-secondary); }
+.header .meta .dot { color:var(--text-muted); margin:0 10px; }
+
+/* Scenario bar */
+.scenario-bar { padding:14px 52px; background:rgba(13,17,23,.92); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; flex-wrap:wrap; position:sticky; top:0; z-index:100; backdrop-filter:blur(16px); }
+.bar-label { font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-right:4px; white-space:nowrap; }
+.sc-btn { padding:9px 24px; border-radius:8px; border:1px solid var(--border-accent); background:var(--bg-card); color:var(--text-secondary); font-family:var(--font-body); font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; text-align:center; }
+.sc-btn:hover { border-color:rgba(255,255,255,.15); color:var(--text-primary); }
+
+/* Content */
+.content { max-width:1440px; margin:0 auto; padding:40px 36px; }
+.section-title { font-family:var(--font-display); font-size:28px; font-weight:800; margin:56px 0 22px; display:flex; align-items:center; gap:14px; letter-spacing:-.03em; background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.65) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.section-title .emoji { font-size:22px; -webkit-text-fill-color:initial; }
+.section-title::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(255,255,255,.15),transparent); }
+
+.note-box { background:var(--bg-card); border:1px solid var(--border-accent); border-left:3px solid var(--accent); border-radius:10px; padding:18px 22px; margin-bottom:30px; font-size:14px; color:var(--text-secondary); line-height:1.8; }
+.note-box strong { color:var(--accent); font-weight:700; }
+
+/* Summary table */
+.summary-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:36px; }
+.summary-card table { width:100%; border-collapse:collapse; min-width:1060px; }
+.summary-card thead th { background:var(--bg-secondary); padding:13px 14px; font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.8px; text-align:right; border-bottom:1px solid var(--border-accent); white-space:nowrap; }
+.summary-card thead th:first-child { text-align:left; }
+.summary-card td { padding:14px 14px; font-family:var(--font-mono); font-size:13px; font-weight:500; border-bottom:1px solid rgba(33,38,45,.7); text-align:right; vertical-align:middle; transition:background .12s; }
+.summary-card td:first-child { text-align:left; font-family:var(--font-body); font-weight:700; color:var(--text-primary); font-size:15px; }
+.summary-card tr.data-row:hover > td { background:var(--bg-elevated); }
+.summary-card tr:last-child td { border-bottom:none; }
+.summary-scroll { overflow-x:auto; }
+
+.v-white{color:#f0f6fc;font-weight:700}.v-accent{color:var(--accent)}.v-blue{color:var(--blue)}.v-green{color:var(--green)}.v-purple{color:var(--purple)}.v-yellow{color:var(--yellow)}.v-red{color:var(--red)}.v-cyan{color:var(--cyan)}
+.v-muted{color:var(--text-muted);font-size:11px;font-weight:400;font-family:var(--font-body)}
+
+.expand-btn { background:transparent; border:1px solid var(--border-accent); color:var(--text-muted); padding:5px 14px; border-radius:6px; font-family:var(--font-body); font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.expand-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-glow); }
+
+.qtip { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,.1); color:var(--text-muted); font-size:9px; font-weight:700; cursor:help; margin-left:4px; vertical-align:middle; border:1px solid rgba(255,255,255,.2); position:relative; flex-shrink:0; }
+.qtip::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 7px); left:50%; transform:translateX(-50%); white-space:nowrap; background:#0d1117; border:1px solid var(--border-accent); border-radius:7px; padding:7px 12px; font-size:11px; color:var(--text-secondary); font-family:var(--font-body); font-weight:400; z-index:300; pointer-events:none; opacity:0; transition:opacity .15s; }
+.qtip:hover::after { opacity:1; }
+
+.detail-row{display:none}.detail-row.open{display:table-row}
+.detail-cell{background:rgba(7,9,14,.6)!important;padding:22px 28px!important;border-bottom:2px solid var(--border-accent)!important}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.detail-box{background:var(--bg-card);border:1px solid var(--border-accent);border-radius:10px;padding:18px 20px}
+.detail-box .db-title{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.dri{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid rgba(33,38,45,.7)}
+.dri:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.dri .lbl{color:var(--text-secondary)}.dri .val{font-family:var(--font-mono);font-weight:600}
+
+/* Charts */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:36px}
+.chart-box{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:28px;transition:border-color .2s}
+.chart-box:hover{border-color:var(--border-accent)}
+.chart-box h3{font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:6px;color:var(--text-primary);letter-spacing:-.02em}
+.chart-box .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.5}
+.chart-box canvas{max-height:300px}
+.chart-full{grid-column:1 / -1}
+
+/* Tabs + Daily */
+.tab-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{padding:9px 22px;border-radius:8px;border:1px solid var(--border-accent);background:var(--bg-card);color:var(--text-secondary);font-family:var(--font-mono);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.tab-btn:hover{border-color:rgba(255,255,255,.15);color:var(--text-primary)}
+.daily-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:28px}
+.daily-panel{display:none;overflow-x:auto}.daily-panel.active{display:block}
+.daily-wrap table{width:100%;border-collapse:collapse;min-width:640px}
+.daily-wrap th{background:var(--bg-secondary);padding:11px 14px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.7px;text-align:right;border-bottom:1px solid var(--border-accent);white-space:nowrap}
+.daily-wrap th:first-child{text-align:left}
+.daily-wrap td{padding:10px 14px;font-family:var(--font-mono);font-size:13px;font-weight:500;border-bottom:1px solid rgba(33,38,45,.6);text-align:right;transition:background .1s}
+.daily-wrap td:first-child{text-align:left;font-weight:700;color:var(--text-secondary)}
+.daily-wrap tr.hl td{background:rgba(28,35,51,.8)}
+.daily-wrap tr:last-child td{border-bottom:none}
+.daily-wrap tr:hover td{background:rgba(28,35,51,.5)}
+.region-header{padding:14px 22px;background:var(--bg-secondary);font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text-primary);border-bottom:1px solid var(--border-accent);display:flex;align-items:center;gap:10px}
+.rdot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+.region-header .v2-note{font-family:var(--font-body);font-size:12px;font-weight:500;color:var(--text-muted);margin-left:auto}
+
+@media(max-width:768px){
+ .header{padding:28px 20px}.header h1{font-size:26px}
+ .content{padding:20px 16px}.scenario-bar{padding:12px 20px}
+ .chart-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}
+ .section-title{font-size:22px}.section-title::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="header anim d1">
+ <h1>GNG 新版本首月预估 <span class="version">v15</span></h1>
+ <div class="meta">2026-04-27<span class="dot">·</span>ID · VN · MY · US · BR · SAC<span class="dot">·</span>平衡/冲刺分段目标<span class="dot">·</span>回流池约束修正版</div>
+</div>
+
+<!-- 留存方案 -->
+<div class="scenario-bar anim d2">
+ <span class="bar-label">📊 方案切换</span>
+ <button class="sc-btn" id="sc-cons-maint"  onclick="setCombo('cons-maint')">保守·平衡</button>
+ <button class="sc-btn" id="sc-cons-sprint" onclick="setCombo('cons-sprint')">保守·冲刺</button>
+ <span style="display:inline-block;width:1px;height:22px;background:rgba(255,255,255,.15);margin:0 4px;vertical-align:middle"></span>
+ <button class="sc-btn" id="sc-opt-maint"   onclick="setCombo('opt-maint')">乐观·平衡</button>
+ <button class="sc-btn" id="sc-opt-sprint"  onclick="setCombo('opt-sprint')">乐观·冲刺</button>
+</div>
+
+<div class="content">
+
+ <div class="note-box anim d3">
+  <strong>模型逻辑</strong> — 总Install = 回流 + OM + Organic，三类均通过留存曲线贡献DAU。
+  SG Lock Region拆分为VN/MY独立IP Region（TH已移除），各自OM/Organic比例基于1.0版本历史真实数据。
+  匹配等待时长由DAU→PCU幂律模型自然推算。v11起回流量增加历史可回流池约束；v15修正冲刺版目标：前两周按平衡目标，后两周冲刺到 ID+VN+MY=100,000、US+BR+SAC=100,000。<br>
+  <strong>当前留存假设：</strong><span id="retentionInfo" style="font-family:var(--font-mono);font-size:12px;color:var(--text-primary);margin-left:6px;"></span>
+ </div>
+
+ <div class="section-title anim d3"><span class="emoji">🚀</span> 首月预估汇总 <span></span></div>
+ <div class="summary-card anim d3">
+  <div class="summary-scroll">
+   <table>
+    <thead>
+     <tr>
+      <th>区域</th><th>首月均DAU</th><th>日均PCU</th><th>预估匹配等待</th>
+      <th>日均新进</th><th>月新进Install</th><th>OM</th><th>Organic</th><th>回流</th><th></th>
+     </tr>
+    </thead>
+    <tbody id="summaryBody"></tbody>
+   </table>
+  </div>
+ </div>
+
+ <div class="section-title anim d3b"><span class="emoji">📅</span> 前两周预估汇总（D1–14） <span></span></div>
+ <div class="note-box anim d3b">
+  <strong>计算说明</strong> — 前两周：回流/OM/Organic按原始RF/NF分布在D1–14内归一，独立求解该段目标均DAU所需Install量。后两周：先算前两周玩家在D15–30的留存carryover贡献，用（目标DAU - carryover均DAU）反推新增Install需求；回流比例按RF末段比例（约5%）折算，近乎为零。<br>
+  <strong>目标口径：</strong>平衡版整月保持 ID/VN/US/BR/SAC=27,000、MY=5,000；冲刺版前两周同平衡版，后两周冲刺到 ID+VN+MY=100,000、US+BR+SAC=100,000
+ </div>
+ <div class="summary-card anim d3b">
+  <div class="summary-scroll">
+   <table>
+    <thead>
+     <tr>
+      <th>区域</th><th>段均DAU</th><th>日均PCU</th><th>预估匹配等待</th>
+      <th>日均新进</th><th>段新进Install</th><th>OM</th><th>Organic</th><th>回流</th>
+     </tr>
+    </thead>
+    <tbody id="p1Body"></tbody>
+   </table>
+  </div>
+ </div>
+
+ <div class="section-title anim d3c"><span class="emoji">📅</span> 后两周预估汇总（D15–30） <span></span></div>
+ <div class="note-box anim d3c">
+  <strong>后两周关键逻辑</strong> — “前两周留存DAU”指D1–14装进来的玩家，在D15–30仍然留下并贡献的平均DAU。后两周目标DAU = 前两周留存DAU + 后两周新增Install贡献DAU；冲刺版只在后两周抬高目标。
+ </div>
+ <div class="summary-card anim d3c">
+  <div class="summary-scroll">
+   <table>
+    <thead>
+     <tr>
+      <th>区域</th><th>段均DAU</th><th>前两周留存DAU</th><th>日均PCU</th><th>预估匹配等待</th>
+      <th>日均新进</th><th>段新进Install</th><th>OM</th><th>Organic</th><th>回流</th>
+     </tr>
+    </thead>
+    <tbody id="p2Body"></tbody>
+   </table>
+  </div>
+ </div>
+
+ <div class="section-title anim d4"><span class="emoji">📈</span> 数据可视化 <span></span></div>
+ <div class="chart-grid">
+  <div class="chart-box chart-full anim d4">
+   <h3>首月 Install &amp; DAU 走势对比</h3>
+   <div class="sub">实线 = 新版预估（<span style="color:#3fb950;font-weight:700">■ DAU 左轴</span> · <span style="color:#ff6b35;font-weight:700">■ Install 右轴</span>）｜ 虚线 = 1.0版本历史 ｜ 所有区域合并</div>
+   <canvas id="combinedTrend" style="max-height:360px"></canvas>
+  </div>
+  <div class="chart-box chart-full anim d5">
+   <h3>首月 Install 来源日走势</h3>
+   <div class="sub">所有区域合并 ｜ 回流 / OM买量 / Organic 每日变化</div>
+   <canvas id="installSrcTrend" style="max-height:300px"></canvas>
+  </div>
+  <div class="chart-box anim d6">
+   <h3>各区月总Install构成</h3>
+   <canvas id="installComp"></canvas>
+  </div>
+ </div>
+
+ <div class="section-title anim d7"><span class="emoji">📋</span> 逐日明细 <span></span></div>
+ <div class="tab-bar anim d7" id="tabBar"></div>
+ <div class="daily-wrap anim d7"><div id="dailyPanels"></div></div>
+
+</div>
+
+<script>
+Chart.defaults.color = '#6b7280';
+Chart.defaults.borderColor = '#21262d';
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.font.size = 12;
+
+// ===== Scenarios (留存方案) =====
+const scenarios = {
+ cons: { name:'保守版', color:'#58a6ff', nodes:[[1,1],[2,.50],[3,.35],[7,.20],[14,.10],[30,.05]], info:'D1=100% → D2=50% → D3=35% → D7=20% → D14=10% → D30=5%' },
+ opt:  { name:'乐观版', color:'#3fb950', nodes:[[1,1],[2,.53],[3,.38],[7,.25],[14,.12],[30,.06]], info:'D1=100% → D2=53% → D3=38% → D7=25% → D14=12% → D30=6%' }
+};
+
+let currentScenario = 'cons'; // kept for legacy refs, derived from currentCombo
+let currentTab = 'ID';
+
+// ===== Static Data =====
+const allRegions = ['ID','VN','MY','US','BR','SAC'];
+const regionNames = { ID:'ID（印尼）', VN:'VN（越南）', MY:'MY（马来）', US:'US（北美/MX）', BR:'BR（巴西）', SAC:'SAC（南美）' };
+const regionColors = { ID:'#58a6ff', VN:'#39d2c0', MY:'#79c0ff', US:'#d29922', BR:'#f85149', SAC:'#bc8cff' };
+
+// v15 DAU 目标
+const baseTargetDAU = { ID:27000, VN:27000, MY:5000, US:27000, BR:27000, SAC:27000 };
+// 平衡版：整月保持基准目标；冲刺版：前两周基准，后两周冲刺。
+const maintainTargetDAU = { ID:27000, VN:27000, MY:5000, US:27000, BR:27000, SAC:27000 };
+const sprintP1TargetDAU = maintainTargetDAU;
+const sprintP2TargetDAU = { ID:46000, VN:46000, MY:8000, US:33333, BR:33333, SAC:33334 };
+
+// 4-combo config (留存方案 × DAU版本)
+const comboList=[
+ {key:'cons-maint',  label:'保守·平衡', retKey:'cons', p1Dau:maintainTargetDAU, p2Dau:maintainTargetDAU, color:'#58a6ff'},
+ {key:'cons-sprint', label:'保守·冲刺', retKey:'cons', p1Dau:sprintP1TargetDAU, p2Dau:sprintP2TargetDAU, color:'#ff6b35'},
+ {key:'opt-maint',   label:'乐观·平衡', retKey:'opt',  p1Dau:maintainTargetDAU, p2Dau:maintainTargetDAU, color:'#3fb950'},
+ {key:'opt-sprint',  label:'乐观·冲刺', retKey:'opt',  p1Dau:sprintP1TargetDAU, p2Dau:sprintP2TargetDAU, color:'#bc8cff'},
+];
+comboList.forEach(c=>{ c.dau=c.p2Dau; }); // legacy display fallback
+const comboMap=Object.fromEntries(comboList.map(c=>[c.key,c]));
+let currentCombo='cons-maint';
+
+// 0.9版本真实回流数据
+const v09data = {
+ MX: { au:89077,  v08active:13012, rate:14.61 },
+ ID: { au:437544, v08active:82584, rate:18.87 },
+ VN: { au:19667,  v08active:9123,  rate:46.39 },
+ MY: { au:12907,  v08active:4504,  rate:34.90 },
+};
+
+// 各场景回流占比（占首月Install）
+// 注意：这是“意愿占比”，最终回流量还会被历史可回流池约束，避免小基盘区域被高回流率算爆。
+const revivalPctByScenario = {
+ cons: { ID:0.20,  VN:0.40,  MY:0.33,  US:0.15,  BR:0.05,  SAC:0.05  },
+ opt:  { ID:0.25,  VN:0.45,  MY:0.38,  US:0.20,  BR:0.08,  SAC:0.08  },
+};
+
+// 回流绝对量上限：优先使用0.9真实回流绝对人数；无数据区域用1.0 pool兜底。
+// opt / sprint允许少量上浮，但不允许只因“回流率高”超过历史基盘逻辑。
+function getRevivalCap(lr, retKey, targetDAU){
+ const refKey = lr==='US' ? 'MX' : lr;
+ const histActive = v09data[refKey]?.v08active;
+ const poolFallback = v2ref[lr]?.pool;
+ const base = histActive || poolFallback || Infinity;
+ const scenarioLift = retKey==='opt' ? 1.15 : 1.00;
+ const sprintLift = targetDAU > maintainTargetDAU[lr] ? 1.25 : 1.00;
+ return base * scenarioLift * sprintLift;
+}
+
+// OM占首月总Install比例
+const omPctOfTotal = { ID:0.505, VN:0.388, MY:0.014, US:0.452, BR:0.254, SAC:0.618 };
+
+// 1.0版本首月（202512）OM/Organic新设备 New User
+const v2ref = {
+ ID:  { om:37471, org:19879, total:57350,  omPct:65.3, orgPct:34.7, pool:84927,  note:'首月新设备(New User)' },
+ VN:  { om:36934, org:8528,  total:45462,  omPct:81.2, orgPct:18.8, pool:62525,  note:'首月新设备(New User)' },
+ MY:  { om:7,     org:1101,  total:1108,   omPct:0.6,  orgPct:99.4, pool:2251,   note:'首月新设备(New User)，1.0未在MY投OM' },
+ US:  { om:21856, org:10254, total:32110,  omPct:68.1, orgPct:31.9, pool:41196,  note:'首月新设备(New User)' },
+ BR:  { om:0,     org:0,     total:0,      omPct:0,    orgPct:0,    pool:3100,   note:'1.0版本BR无OM追踪数据' },
+ SAC: { om:0,     org:0,     total:0,      omPct:0,    orgPct:0,    pool:3206,   note:'1.0版本SAC无OM追踪数据' },
+};
+
+// 0.9版本首月新设备 New User
+const v09newDevice = {
+ ID:  { om:119981, org:43080, total:163061 },
+ VN:  { om:16,     org:2898,  total:2914  },
+ MY:  { om:13,     org:2514,  total:2527  },
+ MX:  { om:80998,  org:39324, total:120322 },
+ BR:  { om:0,      org:0,     total:0     },
+ SAC: { om:0,      org:0,     total:0     },
+};
+
+const v2histAll = {
+ VN:  { install:[0,382,422,189,161,182,202,116,109,111,98,99,105,102,62,58,63,63,65,77,105,77,65,43,55,58,70,88,55,40], dau:[0,382,586,476,438,457,491,427,401,392,375,368,371,368,328,308,302,298,297,308,341,328,315,289,290,291,303,326,305,284] },
+ MY:  { install:[0,200,373,202,181,145,165,153,130,104,103,83,97,91,58,69,62,46,59,63,58,45,40,49,50,42,54,59,30,46], dau:[0,200,459,417,412,391,412,414,399,372,362,338,342,336,301,297,287,266,269,273,269,255,244,248,249,241,250,259,234,241] },
+ ID:  { install:[1,4761,8826,8671,9014,10158,8914,6601,7293,9230,8451,7809,8667,9055,6754,6193,5769,5498,6010,7241,7149,5259,4925,4352,4179,4301,4843,5005,3594,3680], dau:[1,4761,10874,13776,16169,19081,19764,18450,19102,21564,22106,22128,23343,24507,23015,22157,21493,20995,21328,22732,23335,21922,21199,20358,19827,19687,20136,20491,19297,18962] },
+ US:  { install:[135,2267,2702,4210,3944,3762,3562,2473,3110,2611,2047,1639,1791,1791,1270,978,1102,1155,1905,2634,3011,2034,1145,1164,1015,1110,897,757,526,447], dau:[135,2325,3714,6024,6996,7588,7949,7266,7811,7627,7103,6545,6472,6417,5868,5348,5218,5166,5868,6889,7772,7313,6396,6091,5782,5715,5439,5162,4782,4501] },
+ SAC: { install:[115,1562,1613,4816,4833,4942,4821,3201,4381,4503,3733,3258,3221,3186,2128,1466,1765,1641,2025,2576,3644,2185,1298,1205,1083,1191,769,721,522,426], dau:[115,1611,2316,5963,7695,8965,9798,8904,10013,10745,10496,10130,10064,10069,9074,8045,7869,7585,7805,8418,9766,8961,7907,7407,7019,6902,6375,6065,5671,5345] },
+};
+const v2TotalInst = Array(30).fill(0), v2TotalDAU = Array(30).fill(0);
+Object.values(v2histAll).forEach(h => { h.install.forEach((v,i)=>v2TotalInst[i]+=v); h.dau.forEach((v,i)=>v2TotalDAU[i]+=v); });
+
+// ===== Engine =====
+function ret(d, nodes) {
+ if(d<=1) return 1;
+ for(let i=0;i<nodes.length-1;i++){
+  const[d1,r1]=nodes[i],[d2,r2]=nodes[i+1];
+  if(d>=d1&&d<=d2){const t=(Math.log(d)-Math.log(d1))/(Math.log(d2)-Math.log(d1));return r1*(r2/r1)**t;}
+ }
+ return nodes[nodes.length-1][1];
+}
+function nf(d){return d<=7?.6/7:d<=14?.25/7:.15/16;}
+function rvf(d){return d===1?.35:d===2?.25:d===3?.15:d<=7?.05/4:d<=14?.15/7:.05/16;}
+function norm(a){const s=a.reduce((x,y)=>x+y,0);return a.map(v=>v/s);}
+const NF=norm(Array.from({length:30},(_,i)=>nf(i+1)));
+const RF=norm(Array.from({length:30},(_,i)=>rvf(i+1)));
+
+function compute(avgDAU, rp, omP, nodes) {
+ let C=0;
+ for(let t=1;t<=30;t++){let d=0;for(let k=1;k<=t;k++)d+=((1-rp)*NF[k-1]+rp*RF[k-1])*ret(t-k+1,nodes);C+=d;}
+ C/=30;
+ const tI=avgDAU/C,rI=tI*rp,oI=tI*omP,gI=Math.max(0,tI-rI-oI);
+ const daily=[];
+ for(let t=1;t<=30;t++){
+  const rD=rI*RF[t-1],oD=oI*NF[t-1],gD=gI*NF[t-1];
+  let d=0;for(let k=1;k<=t;k++)d+=(rI*RF[k-1]+oI*NF[k-1]+gI*NF[k-1])*ret(t-k+1,nodes);
+  daily.push({day:t,ti:Math.round(rD+oD+gD),ri:Math.round(rD),oi:Math.round(oD),gi:Math.round(gD),dau:Math.round(d)});
+ }
+ return {tI,rI,oI,gI,daily};
+}
+
+function computeAll() {
+ const combo=comboMap[currentCombo];
+ const nodes=scenarios[combo.retKey].nodes;
+ const rpMap=revivalPctByScenario[combo.retKey];
+ const C={};
+ allRegions.forEach(lr=>{
+  // Use two-period model as single source of truth
+  const tp=computeRegionTwoPeriod(lr,combo.p1Dau[lr],combo.p2Dau[lr],nodes,combo.retKey);
+  const omP=omPctOfTotal[lr];
+  const rpLr=rpMap[lr];
+  const rp2=rpLr*0.35;
+  // Build unified 30-day daily array
+  const daily=[];
+  tp.p1.dailyI.forEach((ti,i)=>{
+   const ri=tp.p1.dailyR[i], oi=tp.p1.dailyO[i], gi=tp.p1.dailyG[i];
+   daily.push({day:i+1,ti:Math.round(ti),ri:Math.round(ri),oi:Math.round(oi),gi:Math.round(gi),dau:Math.round(tp.p1.dailyD[i])});
+  });
+  tp.p2.dailyI.forEach((ti,i)=>{
+   const ri=tp.p2.dailyR[i], oi=tp.p2.dailyO[i], gi=tp.p2.dailyG[i];
+   daily.push({day:15+i,ti:Math.round(ti),ri:Math.round(ri),oi:Math.round(oi),gi:Math.round(gi),dau:Math.round(tp.p2.dailyD[i])});
+  });
+  const tI=daily.reduce((s,d)=>s+d.ti,0);
+  const rI=daily.reduce((s,d)=>s+d.ri,0);
+  const oI=daily.reduce((s,d)=>s+d.oi,0);
+  const gI=daily.reduce((s,d)=>s+d.gi,0);
+  const avgDAU=daily.reduce((s,d)=>s+d.dau,0)/30;
+  C[lr]={tI,rI,oI,gI,daily,avgDAU,tp};
+ });
+ return C;
+}
+
+// ===== Sub-Period Engine =====
+// d1/d2: 1-indexed global days; carryoverInst: [{k, v}] from prior period
+function computeSubPeriod(d1, d2, targetDAU, rp, omP, nodes, carryoverInst) {
+ const days = d2 - d1 + 1;
+ // Normalize NF/RF for this sub-period
+ let nfS=0, rfS=0;
+ for(let k=d1;k<=d2;k++){nfS+=nf(k);rfS+=rvf(k);}
+ const nfN=[],rfN=[];
+ for(let k=d1;k<=d2;k++){nfN.push(nf(k)/nfS);rfN.push(rvf(k)/rfS);}
+ // Carryover DAU from prior period installs
+ const covD=[];
+ for(let ti=0;ti<days;ti++){
+  const t=d1+ti; let c=0;
+  for(const{k,v} of carryoverInst){const r=t-k+1;if(r>=1)c+=v*ret(r,nodes);}
+  covD.push(c);
+ }
+ const avgCov=covD.reduce((a,b)=>a+b,0)/days;
+ const netT=Math.max(10, targetDAU-avgCov);
+ // Coefficient
+ let C=0;
+ for(let ti=0;ti<days;ti++){let d=0;for(let ki=0;ki<=ti;ki++)d+=((1-rp)*nfN[ki]+rp*rfN[ki])*ret(ti-ki+1,nodes);C+=d;}
+ C/=days;
+ const tI=netT/C;
+ const rI=tI*rp, oI=tI*omP, gI=Math.max(0,tI-rI-oI);
+ const dailyI=nfN.map((f,ki)=>tI*((1-rp)*f+rp*rfN[ki]));
+ const dailyD=covD.map((c,ti)=>{let d=c;for(let ki=0;ki<=ti;ki++)d+=dailyI[ki]*ret(ti-ki+1,nodes);return d;});
+ return{tI,rI,oI,gI,dailyI,dailyD,avgCov,avgDAU:dailyD.reduce((a,b)=>a+b,0)/days};
+}
+
+// Fixed-revival solver: 回流绝对人数先定，再反推新进Install。
+// 这样 VN 回流被历史池约束后，缺口会真实进入 OM/Organic，而不是只做展示层重分配。
+function computeSubPeriodFixedRevival(d1, d2, targetDAU, revivalTotal, omP, nodes, carryoverInst) {
+ const days = d2 - d1 + 1;
+ let nfS=0, rfS=0;
+ for(let k=d1;k<=d2;k++){nfS+=nf(k);rfS+=rvf(k);}
+ const nfN=[],rfN=[];
+ for(let k=d1;k<=d2;k++){nfN.push(nf(k)/nfS);rfN.push(rvf(k)/rfS);}
+ const covD=[];
+ for(let ti=0;ti<days;ti++){
+  const t=d1+ti; let c=0;
+  for(const{k,v} of carryoverInst){const r=t-k+1;if(r>=1)c+=v*ret(r,nodes);}
+  covD.push(c);
+ }
+ const dailyR=rfN.map(f=>revivalTotal*f);
+ const revD=[];
+ for(let ti=0;ti<days;ti++){let d=0;for(let ki=0;ki<=ti;ki++)d+=dailyR[ki]*ret(ti-ki+1,nodes);revD.push(d);}
+ const avgCov=covD.reduce((a,b)=>a+b,0)/days;
+ const avgRev=revD.reduce((a,b)=>a+b,0)/days;
+ let C=0;
+ for(let ti=0;ti<days;ti++){let d=0;for(let ki=0;ki<=ti;ki++)d+=nfN[ki]*ret(ti-ki+1,nodes);C+=d;}
+ C/=days;
+ const newI=Math.max(0,(targetDAU-avgCov-avgRev)/C);
+ const tI=revivalTotal+newI;
+ const oI=Math.min(newI,tI*omP), gI=Math.max(0,newI-oI), rI=revivalTotal;
+ const dailyO=nfN.map(f=>oI*f), dailyG=nfN.map(f=>gI*f);
+ const dailyI=dailyR.map((r,i)=>r+dailyO[i]+dailyG[i]);
+ const dailyD=covD.map((c,ti)=>{let d=c;for(let ki=0;ki<=ti;ki++)d+=(dailyR[ki]+dailyO[ki]+dailyG[ki])*ret(ti-ki+1,nodes);return d;});
+ return{tI,rI,oI,gI,dailyI,dailyR,dailyO,dailyG,dailyD,avgCov,avgDAU:dailyD.reduce((a,b)=>a+b,0)/days};
+}
+
+function computeRegionTwoPeriod(lr, dau1, dau2, nodes, scKey) {
+ const rp=revivalPctByScenario[scKey||currentScenario][lr];
+ const omP=omPctOfTotal[lr];
+ // First pass: estimate raw revival demand by period.
+ const rawP1=computeSubPeriod(1,14,dau1,rp,omP,nodes,[]);
+ const rawCov=rawP1.dailyI.map((v,i)=>({k:i+1,v}));
+ const rp2=rp*0.35;
+ const rawP2=computeSubPeriod(15,30,dau2,rp2,omP,nodes,rawCov);
+ const rawR=rawP1.rI+rawP2.rI;
+ const capR=getRevivalCap(lr,scKey||currentScenario,Math.max(dau1,dau2));
+ const scale=rawR>0?Math.min(1,capR/rawR):0;
+ const r1=rawP1.rI*scale, r2=rawP2.rI*scale;
+ // Final pass: fixed absolute revival, solve OM/Organic for the DAU target.
+ const p1=computeSubPeriodFixedRevival(1,14,dau1,r1,omP,nodes,[]);
+ const cov=p1.dailyI.map((v,i)=>({k:i+1,v}));
+ const p2=computeSubPeriodFixedRevival(15,30,dau2,r2,omP,nodes,cov);
+ return{p1,p2};
+}
+
+function getTotals(C){
+ const newTI=Array(30).fill(0),newTD=Array(30).fill(0);
+ allRegions.forEach(lr=>{C[lr].daily.forEach((d,i)=>{newTI[i]+=d.ti;newTD[i]+=d.dau;});});
+ return{newTI,newTD};
+}
+function getTotalsByComponent(C){
+ const R=Array(30).fill(0),O=Array(30).fill(0),G=Array(30).fill(0);
+ allRegions.forEach(lr=>{C[lr].daily.forEach((d,i)=>{R[i]+=d.ri;O[i]+=d.oi;G[i]+=d.gi;});});
+ return{R,O,G};
+}
+
+// ===== Matchmaking Models =====
+const dauPcuData = {
+ ID:  [[70064.91,9877.57],[45508.48,6101.84],[24207.37,3062.43],[27543.42,3585.90],[21944.35,2966.97],[20612.14,2245.89],[12515.03,1324.35]],
+ VN:  [[5057.70,1079.39],[3898.32,758.61],[2779.43,522.73],[9269.97,1342.84],[6212.77,988.35],[4676.11,636.00],[2516.71,396.71]],
+ MY:  [[2752.30,436.43],[1910.23,262.39],[1302.00,150.70],[1242.29,171.23],[920.74,127.97],[740.36,89.93],[548.74,67.94]],
+ MX:  [[13859.83,1729.82],[7307.87,965.68],[4436.63,577.87],[5537.74,706.00],[5798.26,699.87],[4362.75,466.96],[2780.55,306.03]],
+ BR:  [[11872.75,1273.21],[7096.42,837.10],[5626.27,731.23],[4458.48,596.87],[3612.33,486.00]]
+};
+const pcuWaitData = {
+ ID:  [[9877.57,19.52],[6101.84,28.93],[3062.43,41.87],[3585.90,32.71],[2966.97,42.21],[2245.89,30.38],[1324.35,39.28]],
+ VN:  [[1079.39,41.76],[758.61,57.46],[522.73,73.63],[1342.84,36.29],[988.35,52.88],[636.00,46.83],[396.71,55.40]],
+ MY:  [[436.43,22.76],[262.39,32.42],[150.70,44.43],[171.23,35.25],[127.97,44.65],[89.93,36.31],[67.94,43.96]],
+ MX:  [[1729.82,34.02],[965.68,58.15],[577.87,73.23],[706.00,49.55],[699.87,57.26],[466.96,46.83],[306.03,52.53]],
+ BR:  [[1273.21,24.20],[837.10,31.61],[731.23,44.29],[596.87,53.11],[486.00,57.61]]
+};
+
+function fitPowerLaw(data){
+ const n=data.length,lx=data.map(d=>Math.log(d[0])),ly=data.map(d=>Math.log(d[1]));
+ const mx=lx.reduce((a,b)=>a+b,0)/n,my=ly.reduce((a,b)=>a+b,0)/n;
+ const sxy=lx.reduce((s,x,i)=>s+(x-mx)*(ly[i]-my),0),sxx=lx.reduce((s,x)=>s+(x-mx)*(x-mx),0);
+ const slope=sxy/sxx;return{a:Math.exp(my-slope*mx),b:slope};
+}
+
+const dauPcuModels={},pcuWaitModels={};
+Object.keys(dauPcuData).forEach(r=>{dauPcuModels[r]=fitPowerLaw(dauPcuData[r]);pcuWaitModels[r]=fitPowerLaw(pcuWaitData[r]);});
+dauPcuModels.US=dauPcuModels.MX; dauPcuModels.SAC=dauPcuModels.MX;
+pcuWaitModels.US=pcuWaitModels.MX; pcuWaitModels.SAC=pcuWaitModels.MX;
+
+function predictPCU(dau, region){const m=dauPcuModels[region]||dauPcuModels.MX;return Math.round(m.a*Math.pow(dau,m.b));}
+function predictWait(pcu, region){
+ const m=pcuWaitModels[region]||pcuWaitModels.MX;
+ let w=Math.max(5,Math.round(m.a*Math.pow(pcu,m.b)));
+ if(region==='MY') w=Math.round(w*1.28);   // MY历史数据偏低，校正上调
+ if(region==='BR') w=Math.max(30,Math.round(w*1.45)); // BR用MX代理偏低，校正+设底线30s
+ return w;
+}
+function fmtWait(s){return s>=60?(s/60).toFixed(1)+'m':s+'s';}
+
+// ===== Formatters =====
+const fmt=n=>Math.round(n).toLocaleString();
+const pct=n=>n.toFixed(1)+'%';
+const labels=Array.from({length:30},(_,i)=>'D'+(i+1));
+const chartFont={family:"'JetBrains Mono', monospace",size:11};
+const axisColor='#6b7280', gridColor='rgba(255,255,255,0.04)';
+
+// ===== 历史参考数据 =====
+const v09rawdata = {
+ ID: { dau:70065, pcu:9878, wait:19.5 },
+ VN: { dau:5058,  pcu:1079, wait:41.8 },
+ MY: { dau:2752,  pcu:436,  wait:22.8 },
+ MX: { dau:13860, pcu:1730, wait:34.0 },
+ BR: { dau:11873, pcu:1273, wait:24.2 },
+};
+const v10rawdata = {
+ ID: { dau:null, pcu:null, wait:null },
+ VN: { dau:null, pcu:null, wait:null },
+ MY: { dau:null, pcu:null, wait:null },
+ MX: { dau:null, pcu:null, wait:null },
+};
+
+// ===== Render Summary =====
+function refCell(val, color, bold, extra){
+ const s='padding:5px 14px;font-family:var(--font-mono);font-size:12px;border-bottom:1px solid rgba(33,38,45,.5)';
+ const c=color?`color:${color};`:'color:var(--text-muted);';
+ const v=val!==null&&val!==undefined?val:'—';
+ return `<td style="${s}${c}">${bold?`<strong>${v}</strong>`:v}${extra||''}</td>`;
+}
+function emptyRef(bottom){
+ const b=bottom?'border-bottom:2px solid rgba(33,38,45,.7)':'border-bottom:1px solid rgba(33,38,45,.5)';
+ return `<td style="padding:5px 14px;${b}"></td>`;
+}
+function labelCell(text, color, bottom){
+ const b=bottom?'border-bottom:2px solid rgba(33,38,45,.7)':'border-bottom:1px solid rgba(33,38,45,.5)';
+ return `<td style="padding:5px 14px;font-family:var(--font-body);font-size:11px;font-weight:700;color:${color};letter-spacing:.4px;${b}">${text}</td>`;
+}
+
+function renderSummary(C){
+ const tbody=document.getElementById('summaryBody');
+ tbody.innerHTML='';
+ const combo=comboMap[currentCombo];
+ const rpMap=revivalPctByScenario[combo.retKey];
+ allRegions.forEach(lr=>{
+  const c=C[lr],ref=v2ref[lr];
+  const rp=rpMap[lr];
+  const dau=Math.round(c.avgDAU); // actual computed avg DAU from two-period model
+  const pcu=predictPCU(dau,lr);
+  const wait=predictWait(pcu,lr);
+  const v09=v09data[lr==='US'?'MX':lr];
+  const v2h=v2histAll[lr];
+  const v2avg=v2h?Math.round(v2h.dau.reduce((a,b)=>a+b,0)/30):null;
+  const newI=c.oI+c.gI;
+  const omPctAU=(newI>0?c.oI/newI*100:0).toFixed(1);
+  const gPctAU=(newI>0?c.gI/newI*100:0).toFixed(1);
+
+  // 主数据行
+  const tr=document.createElement('tr'); tr.className='data-row';
+  tr.innerHTML=`
+   <td>${regionNames[lr]}</td>
+   <td class="v-white">${fmt(dau)}</td>
+   <td class="v-cyan">${fmt(pcu)}</td>
+   <td class="v-accent" style="font-weight:700">${fmtWait(wait)}</td>
+   <td class="v-blue">${fmt((c.oI+c.gI)/30)}</td>
+   <td>${fmt(c.oI+c.gI)}</td>
+   <td class="v-green">${fmt(c.oI)}</td>
+   <td class="v-purple">${fmt(c.gI)}</td>
+   <td class="v-yellow">${fmt(c.rI)}</td>
+   <td><button class="expand-btn" onclick="toggleDet(this,'${lr}')">▶ 参考数据</button></td>
+  `;
+  tbody.appendChild(tr);
+
+  const v10d=v10rawdata[lr==='US'?'MX':lr]||null;
+  const v09r=v09rawdata[lr==='US'?'MX':lr]||null;
+
+  // 行1：新进Install占比（OM + Organic = 100%，回流单独展示不参与占比）
+  const pctTr=document.createElement('tr'); pctTr.className='ref-row'; pctTr.id='pct-'+lr; pctTr.style.display='none';
+  pctTr.innerHTML=
+   labelCell('新进占比','var(--text-muted)')+
+   emptyRef()+emptyRef()+emptyRef()+emptyRef()+emptyRef()+
+   `<td style="padding:5px 14px;border-bottom:1px solid rgba(33,38,45,.5)" class="v-green"><strong>${omPctAU}%</strong><span class="qtip" data-tip="OM / (OM + Organic)">?</span></td>`+
+   `<td style="padding:5px 14px;border-bottom:1px solid rgba(33,38,45,.5)" class="v-purple"><strong>${gPctAU}%</strong><span class="qtip" data-tip="Organic / (OM + Organic)">?</span></td>`+
+   `<td style="padding:5px 14px;border-bottom:1px solid rgba(33,38,45,.5)" class="v-yellow">—</td>`+
+   emptyRef();
+  tbody.appendChild(pctTr);
+
+  // 行2：1.0版本参考
+  const v10total=ref?(ref.om+ref.org):null;
+  const v2refTr=document.createElement('tr'); v2refTr.className='ref-row'; v2refTr.id='v2ref-'+lr; v2refTr.style.display='none';
+  v2refTr.innerHTML=
+   labelCell('1.0版本参考（首月）','#58a6ff')+
+   refCell((v10d&&v10d.dau)?fmt(v10d.dau):null,'rgba(240,246,252,.75)')+
+   refCell((v10d&&v10d.pcu)?fmt(v10d.pcu):null,'rgba(57,210,192,.75)')+
+   refCell((v10d&&v10d.wait)?v10d.wait+'s':null,'rgba(255,107,53,.75)')+
+   refCell(v10total?fmt(v10total/30):null,'rgba(88,166,255,.75)')+
+   refCell(v10total?fmt(v10total):null,'rgba(240,246,252,.6)')+
+   refCell(ref?fmt(ref.om):null,'rgba(63,185,80,.75)')+
+   refCell(ref?fmt(ref.org):null,'rgba(188,140,255,.75)')+
+   refCell('—',null)+
+   emptyRef();
+  tbody.appendChild(v2refTr);
+
+  // 行3：1.0版本占比
+  const v2pctTr=document.createElement('tr'); v2pctTr.className='ref-row'; v2pctTr.id='v2pct-'+lr; v2pctTr.style.display='none';
+  v2pctTr.innerHTML=
+   labelCell('1.0版本占比','rgba(88,166,255,.7)')+
+   emptyRef()+emptyRef()+emptyRef()+emptyRef()+emptyRef()+
+   refCell(ref?ref.omPct.toFixed(1)+'%':null,'rgba(63,185,80,.75)')+
+   refCell(ref?ref.orgPct.toFixed(1)+'%':null,'rgba(188,140,255,.75)')+
+   refCell('—',null)+
+   emptyRef();
+  tbody.appendChild(v2pctTr);
+
+  // 行4：0.9版本参考
+  const v09nd=v09newDevice[lr==='US'?'MX':lr]||null;
+  const v09totalInstall=(v09nd?.total||0)+(v09?.v08active||0);
+  const v09refTr=document.createElement('tr'); v09refTr.className='ref-row'; v09refTr.id='v09ref-'+lr; v09refTr.style.display='none';
+  v09refTr.innerHTML=
+   labelCell('0.9版本参考（首月）','#e3a008')+
+   refCell(v09r?fmt(v09r.dau):null,'rgba(240,246,252,.75)')+
+   refCell(v09r?fmt(v09r.pcu):null,'rgba(57,210,192,.75)')+
+   refCell(v09r?v09r.wait+'s':null,'rgba(255,107,53,.75)')+
+   refCell(v09nd&&v09nd.total>0?fmt(v09nd.total/30):null,'rgba(88,166,255,.75)')+
+   refCell(v09nd&&v09nd.total>0?fmt(v09nd.total):null,'rgba(240,246,252,.6)')+
+   refCell(v09nd?fmt(v09nd.om):null,'rgba(63,185,80,.75)')+
+   refCell(v09nd?fmt(v09nd.org):null,'rgba(188,140,255,.75)')+
+   refCell(v09?fmt(v09.v08active):null,'rgba(227,160,8,.75)')+
+   emptyRef();
+  tbody.appendChild(v09refTr);
+
+  // 行5：0.9版本占比
+  const v09omPct=v09nd&&v09nd.total>0?(v09nd.om/v09nd.total*100).toFixed(1)+'%':'—';
+  const v09orgPct=v09nd&&v09nd.total>0?(v09nd.org/v09nd.total*100).toFixed(1)+'%':'—';
+  const v09revPct=v09&&v09totalInstall>0?(v09.v08active/v09totalInstall*100).toFixed(1)+'%':'—';
+  const v09pctTr=document.createElement('tr'); v09pctTr.className='ref-row'; v09pctTr.id='v09pct-'+lr; v09pctTr.style.display='none';
+  v09pctTr.innerHTML=
+   `<td style="padding:5px 14px;font-family:var(--font-body);font-size:11px;font-weight:700;color:rgba(227,160,8,.7);letter-spacing:.4px;border-bottom:2px solid rgba(33,38,45,.7)">0.9版本占比</td>`+
+   emptyRef(true)+emptyRef(true)+emptyRef(true)+emptyRef(true)+emptyRef(true)+
+   `<td style="padding:5px 14px;font-family:var(--font-mono);font-size:12px;color:rgba(63,185,80,.75);border-bottom:2px solid rgba(33,38,45,.7)">${v09omPct}</td>`+
+   `<td style="padding:5px 14px;font-family:var(--font-mono);font-size:12px;color:rgba(188,140,255,.75);border-bottom:2px solid rgba(33,38,45,.7)">${v09orgPct}</td>`+
+   `<td style="padding:5px 14px;font-family:var(--font-mono);font-size:12px;color:rgba(227,160,8,.75);border-bottom:2px solid rgba(33,38,45,.7)">${v09revPct}</td>`+
+   `<td style="padding:5px 14px;border-bottom:2px solid rgba(33,38,45,.7)"></td>`;
+  tbody.appendChild(v09pctTr);
+ });
+}
+
+function toggleDet(btn,lr){
+ const ids=['pct-','v2ref-','v2pct-','v09ref-','v09pct-'];
+ const first=document.getElementById('pct-'+lr);
+ const open=!first||first.style.display!=='table-row';
+ ids.forEach(s=>{const r=document.getElementById(s+lr);if(r)r.style.display=open?'table-row':'none';});
+ btn.textContent=open?'▼ 参考数据':'▶ 参考数据';
+}
+
+// ===== Sub-Period Summary Render =====
+// Shows current combo only (1 row per region, switches with the 4 buttons)
+function renderSubPeriodSummaries(C) {
+ const combo=comboMap[currentCombo];
+ const nodes=scenarios[combo.retKey].nodes;
+ ['p1','p2'].forEach(period=>{
+  const tbodyId=period==='p1'?'p1Body':'p2Body';
+  const d1=period==='p1'?1:15, d2=period==='p1'?14:30;
+  const days=d2-d1+1;
+  const tbody=document.getElementById(tbodyId);
+  tbody.innerHTML='';
+  allRegions.forEach(lr=>{
+   const p1Target=combo.p1Dau[lr], p2Target=combo.p2Dau[lr];
+   const tp=computeRegionTwoPeriod(lr,p1Target,p2Target,nodes,combo.retKey);
+   const p=period==='p1'?tp.p1:tp.p2;
+   const periodTarget=period==='p1'?p1Target:p2Target;
+   const pcu=predictPCU(periodTarget,lr);
+   const wait=predictWait(pcu,lr);
+   const days_=days;
+   const segDaily=C[lr].daily.slice(d1-1,d2);
+   const segR=segDaily.reduce((s,d)=>s+d.ri,0);
+   const segO=segDaily.reduce((s,d)=>s+d.oi,0);
+   const segG=segDaily.reduce((s,d)=>s+d.gi,0);
+   const bdr='border-bottom:1px solid rgba(33,38,45,.7)';
+   const extraCarryover=period==='p2'?`<td style="${bdr};font-family:var(--font-mono);font-size:13px;text-align:right;color:var(--text-muted)">${fmt(p.avgCov)}</td>`:'';
+   const tr=document.createElement('tr');
+   tr.innerHTML=`
+    <td style="font-family:var(--font-body);font-weight:700;color:var(--text-primary);font-size:15px;border-bottom:1px solid rgba(33,38,45,.7);padding:14px 14px">${regionNames[lr]}</td>
+    <td style="${bdr};font-family:var(--font-mono);font-size:13px;font-weight:700;text-align:right;color:#f0f6fc">${fmt(Math.round(p.avgDAU))}</td>
+    ${extraCarryover}
+    <td style="${bdr};font-family:var(--font-mono);font-size:13px;text-align:right;color:var(--cyan)">${fmt(pcu)}</td>
+    <td style="${bdr};font-family:var(--font-mono);font-size:13px;font-weight:700;text-align:right;color:var(--accent)">${fmtWait(wait)}</td>
+    <td style="${bdr};font-family:var(--font-mono);font-size:13px;text-align:right;color:var(--blue)">${fmt((segO+segG)/days_)}</td>
+    <td style="${bdr};font-family:var(--font-mono);font-size:13px;text-align:right;color:var(--text-secondary)">${fmt(segO+segG)}</td>
+    <td style="${bdr};font-family:var(--font-mono);font-size:13px;text-align:right;color:var(--green)">${fmt(segO)}</td>
+    <td style="${bdr};font-family:var(--font-mono);font-size:13px;text-align:right;color:var(--purple)">${fmt(segG)}</td>
+    <td style="${bdr};font-family:var(--font-mono);font-size:13px;text-align:right;color:var(--yellow)">${fmt(segR)}</td>
+   `;
+   tbody.appendChild(tr);
+  });
+ });
+}
+
+// ===== Charts =====
+let chartCombined,chartInstallSrc,chartComp;
+
+function initCharts(C){
+ const{newTI,newTD}=getTotals(C);
+ chartCombined=new Chart(document.getElementById('combinedTrend'),{type:'line',data:{labels,datasets:[
+  {label:'新版 DAU',data:[...newTD],borderColor:'#3fb950',backgroundColor:'rgba(63,185,80,0.08)',fill:true,tension:.35,borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#3fb950',yAxisID:'yDAU'},
+  {label:'1.0版本 DAU',data:v2TotalDAU,borderColor:'#235c2a',backgroundColor:'transparent',fill:false,tension:.35,borderWidth:1.5,pointRadius:0,borderDash:[6,4],yAxisID:'yDAU'},
+  {label:'新版 Install',data:[...newTI],borderColor:'#ff6b35',backgroundColor:'rgba(255,107,53,0.08)',fill:true,tension:.35,borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#ff6b35',yAxisID:'yInstall'},
+  {label:'1.0版本 Install',data:v2TotalInst,borderColor:'#6b3520',backgroundColor:'transparent',fill:false,tension:.35,borderWidth:1.5,pointRadius:0,borderDash:[6,4],yAxisID:'yInstall'},
+ ]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#9ca3af',font:chartFont,padding:16}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${Math.round(c.raw).toLocaleString()}`}}},scales:{
+  x:{ticks:{color:axisColor,font:chartFont},grid:{color:gridColor}},
+  yDAU:{type:'linear',position:'left',ticks:{color:'#3fb950',font:chartFont,callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:gridColor},title:{display:true,text:'DAU',color:'#3fb950',font:{...chartFont,weight:'700'}}},
+  yInstall:{type:'linear',position:'right',ticks:{color:'#ff6b35',font:chartFont,callback:v=>(v/1000).toFixed(0)+'K'},grid:{drawOnChartArea:false},title:{display:true,text:'Install',color:'#ff6b35',font:{...chartFont,weight:'700'}}}
+ }}});
+
+ chartComp=new Chart(document.getElementById('installComp'),{type:'bar',data:{labels:allRegions,datasets:[
+  {label:'回流',data:allRegions.map(lr=>Math.round(C[lr].rI)),backgroundColor:'rgba(227,160,8,0.85)',borderColor:'#e3a008',borderWidth:1},
+  {label:'OM',data:allRegions.map(lr=>Math.round(C[lr].oI)),backgroundColor:'rgba(63,185,80,0.85)',borderColor:'#3fb950',borderWidth:1},
+  {label:'Organic',data:allRegions.map(lr=>Math.round(C[lr].gI)),backgroundColor:'rgba(188,140,255,0.85)',borderColor:'#bc8cff',borderWidth:1},
+ ]},options:{indexAxis:'y',responsive:true,plugins:{legend:{labels:{color:'#9ca3af',font:chartFont,padding:16}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString()}`}}},scales:{x:{stacked:true,ticks:{color:axisColor,font:chartFont,callback:v=>(v/1000)+'K'},grid:{color:gridColor}},y:{stacked:true,ticks:{color:'#a0aab4',font:{...chartFont,weight:'700'}},grid:{color:gridColor}}}}});
+
+ const{R,O,G}=getTotalsByComponent(C);
+ chartInstallSrc=new Chart(document.getElementById('installSrcTrend'),{type:'line',data:{labels,datasets:[
+  {label:'回流',data:[...R],borderColor:'#e3a008',backgroundColor:'rgba(227,160,8,0.12)',fill:true,tension:.35,borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#e3a008'},
+  {label:'OM买量',data:[...O],borderColor:'#3fb950',backgroundColor:'rgba(63,185,80,0.12)',fill:true,tension:.35,borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#3fb950'},
+  {label:'Organic',data:[...G],borderColor:'#bc8cff',backgroundColor:'rgba(188,140,255,0.12)',fill:true,tension:.35,borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#bc8cff'},
+ ]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#9ca3af',font:chartFont,padding:16}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${Math.round(c.raw).toLocaleString()}`}}},scales:{x:{ticks:{color:axisColor,font:chartFont},grid:{color:gridColor}},y:{ticks:{color:axisColor,font:chartFont,callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:gridColor}}}}});
+}
+
+function updateCharts(C){
+ const{newTI,newTD}=getTotals(C);
+ chartCombined.data.datasets[0].data=newTD;
+ chartCombined.data.datasets[2].data=newTI;
+ chartCombined.update('none');
+ chartComp.data.datasets[0].data=allRegions.map(lr=>Math.round(C[lr].rI));
+ chartComp.data.datasets[1].data=allRegions.map(lr=>Math.round(C[lr].oI));
+ chartComp.data.datasets[2].data=allRegions.map(lr=>Math.round(C[lr].gI));
+ chartComp.update('none');
+ const{R,O,G}=getTotalsByComponent(C);
+ chartInstallSrc.data.datasets[0].data=R;
+ chartInstallSrc.data.datasets[1].data=O;
+ chartInstallSrc.data.datasets[2].data=G;
+ chartInstallSrc.update('none');
+}
+
+// ===== Daily Panels =====
+function renderDailyPanels(C){
+ const panelsEl=document.getElementById('dailyPanels');
+ panelsEl.innerHTML='';
+ const hlDays=[1,5,7,14,30];
+ const combo=comboMap[currentCombo];
+ allRegions.forEach(lr=>{
+  const col=regionColors[lr];
+  const panel=document.createElement('div');
+  panel.className='daily-panel'+(lr===currentTab?' active':''); panel.id='panel-'+lr;
+  const v2h=v2histAll[lr];
+  const v2avg=v2h?Math.round(v2h.dau.reduce((a,b)=>a+b,0)/30):0;
+  const v10ref=v10rawdata[lr==='US'?'MX':lr];
+  const v10dau=v10ref&&v10ref.dau?v10ref.dau:v2avg;
+  const hdr=document.createElement('div'); hdr.className='region-header';
+  hdr.innerHTML=`<span class="rdot" style="background:${col}"></span>${regionNames[lr]}`
+   +(v10dau?`<span class="v2-note">1.0版本首月均DAU: ${fmt(v10dau)} → D1–14目标: ${fmt(combo.p1Dau[lr])} · D15–30目标: ${fmt(combo.p2Dau[lr])}</span>`:'');
+  panel.appendChild(hdr);
+  const scroll=document.createElement('div'); scroll.style.overflowX='auto';
+  const table=document.createElement('table');
+  const extraTh=v2h?'<th style="color:var(--text-muted)">1.0版本 Install</th><th style="color:var(--text-muted)">1.0版本 DAU</th>':'';
+  table.innerHTML=`<thead><tr><th style="text-align:left">Day</th><th style="color:var(--yellow)">回流</th><th style="color:var(--green)">OM</th><th style="color:var(--purple)">Organic</th><th style="color:var(--blue)">日总Install</th><th>DAU</th>${extraTh}</tr></thead>`;
+  const tb=document.createElement('tbody');
+  C[lr].daily.forEach((d,i)=>{
+   const tr=document.createElement('tr'); if(hlDays.includes(d.day))tr.className='hl';
+   const ext=v2h?`<td style="color:var(--text-muted)">${v2h.install[i].toLocaleString()}</td><td style="color:var(--text-muted)">${v2h.dau[i].toLocaleString()}</td>`:'';
+   tr.innerHTML=`<td>D${d.day}</td><td class="v-yellow">${d.ri.toLocaleString()}</td><td class="v-green">${d.oi.toLocaleString()}</td><td class="v-purple">${d.gi.toLocaleString()}</td><td class="v-blue">${d.ti.toLocaleString()}</td><td class="v-white"><strong>${d.dau.toLocaleString()}</strong></td>${ext}`;
+   tb.appendChild(tr);
+  });
+  table.appendChild(tb); scroll.appendChild(table); panel.appendChild(scroll);
+  panelsEl.appendChild(panel);
+ });
+}
+
+// ===== Tab Bar =====
+function buildTabBar(){
+ const tabBar=document.getElementById('tabBar'); tabBar.innerHTML='';
+ allRegions.forEach(lr=>{
+  const col=regionColors[lr];
+  const btn=document.createElement('button'); btn.className='tab-btn'+(lr===currentTab?' active':'');
+  btn.textContent=lr; if(lr===currentTab)btn.style.cssText=`border-color:${col};color:${col};background:${col}15`;
+  btn.onclick=()=>switchTab(lr); tabBar.appendChild(btn);
+ });
+}
+function switchTab(lr){
+ currentTab=lr;
+ document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+  const r=allRegions[i],active=r===lr,col=regionColors[r];
+  b.classList.toggle('active',active);
+  b.style.cssText=active?`border-color:${col};color:${col};background:${col}15`:'';
+ });
+ document.querySelectorAll('.daily-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+lr));
+}
+
+// ===== Combo Buttons =====
+function updateComboButtons(){
+ comboList.forEach(c=>{
+  const btn=document.getElementById('sc-'+c.key);
+  if(!btn)return;
+  const active=c.key===currentCombo;
+  btn.classList.toggle('active',active);
+  btn.style.borderColor=active?c.color:'';
+  btn.style.color=active?c.color:'';
+  btn.style.background=active?c.color+'18':'';
+ });
+ const combo=comboMap[currentCombo];
+ document.getElementById('retentionInfo').textContent=scenarios[combo.retKey].info+' | 版本：'+combo.label;
+}
+
+// ===== Main Refresh =====
+function refresh(){
+ const C=computeAll();
+ updateComboButtons();
+ renderSummary(C);
+ renderSubPeriodSummaries(C);
+ updateCharts(C);
+ renderDailyPanels(C);
+ switchTab(currentTab);
+}
+
+function setCombo(key){ if(currentCombo===key)return; currentCombo=key; currentScenario=comboMap[key].retKey; refresh(); }
+
+// ===== Init =====
+const initC=computeAll();
+buildTabBar();
+initCharts(initC);
+updateComboButtons();
+renderSummary(initC);
+renderSubPeriodSummaries(initC);
+renderDailyPanels(initC);
+</script>
+</body>
+</html>
