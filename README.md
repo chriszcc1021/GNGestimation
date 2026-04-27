@@ -15,6 +15,7 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
   - `gng_forecast_v13_scenarios.html`
   - `gng_forecast_v14_scenarios.html`
   - `gng_forecast_v15_scenarios.html`
+  - `gng_forecast_v16_scenarios.html`
 - `data/raw/`：原始参考数据
   - `GNG_Data_Request_678_rawdata1.txt`：前两个版本按月/区域基础数据，含 avg_dau / avg_ccu / avg_pcu / avg_wait_time_secs
   - `gng_OM_device_retention_2026-04-08.txt`：OM device retention 明细
@@ -23,7 +24,7 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
 
 ## 最新版本
 
-最新版报告：`reports/gng_forecast_v15_scenarios.html`
+最新版报告：`reports/gng_forecast_v16_scenarios.html`
 
 ## 核心模型
 
@@ -62,3 +63,10 @@ GNG 新版本首月人数 / Install / DAU / PCU / 匹配等待时长预估资料
 - 汇总表中 Install 改为只展示新进 Install（OM + Organic）。
 - 回流移到最后一列，单独展示，不参与 Install 占比。
 - 展开行占比改为 OM / Organic 在新进 Install 中的占比，二者加总100%。
+
+
+## v16 修正
+
+- 新进 Install 拆分固定为 OM 70% / Organic 30%。
+- 回流人数不变，仍单独展示。
+- DAU / PCU / 等待时长 / 新进总量目标保持不变。
