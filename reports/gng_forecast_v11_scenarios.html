@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GNG 新版本首月预估 v10</title>
+<title>GNG 新版本首月预估 v11</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -130,8 +130,8 @@ body::after { content:''; position:fixed; top:-50%; left:-50%; width:200%; heigh
 <body>
 
 <div class="header anim d1">
- <h1>GNG 新版本首月预估 <span class="version">v10</span></h1>
- <div class="meta">2026-04-23<span class="dot">·</span>ID · VN · MY · US · BR · SAC<span class="dot">·</span>回流计为Install，通过留存曲线贡献DAU<span class="dot">·</span>匹配平衡版</div>
+ <h1>GNG 新版本首月预估 <span class="version">v11</span></h1>
+ <div class="meta">2026-04-27<span class="dot">·</span>ID · VN · MY · US · BR · SAC<span class="dot">·</span>回流计为Install，通过留存曲线贡献DAU<span class="dot">·</span>回流池约束修正版</div>
 </div>
 
 <!-- 留存方案 -->
@@ -149,7 +149,7 @@ body::after { content:''; position:fixed; top:-50%; left:-50%; width:200%; heigh
  <div class="note-box anim d3">
   <strong>模型逻辑</strong> — 总Install = 回流 + OM + Organic，三类均通过留存曲线贡献DAU。
   SG Lock Region拆分为VN/MY独立IP Region（TH已移除），各自OM/Organic比例基于1.0版本历史真实数据。
-  匹配等待时长由DAU→PCU幂律模型自然推算（平衡版）。<br>
+  匹配等待时长由DAU→PCU幂律模型自然推算（平衡版）。v11起回流量增加历史可回流池约束，避免VN等小基盘区域因高回流率被高估。<br>
   <strong>当前留存假设：</strong><span id="retentionInfo" style="font-family:var(--font-mono);font-size:12px;color:var(--text-primary);margin-left:6px;"></span>
  </div>
 
